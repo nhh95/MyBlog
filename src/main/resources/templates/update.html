@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>회원 정보 수정</title>
+</head>
+<body>
+<h1>회원 정보 수정</h1>
+<hr>
+
+<form th:action="@{/user/update/{email}(email=${userRequestDTO.email})}" th:object="${userRequestDTO}" method="post">
+  <!-- Spring Security CSRF 사용 시 필요 -->
+<!--  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
+
+
+  <div>
+    <label for="password">Password</label>
+    <input type="password" id="password" th:field="*{password}" placeholder="새 비밀번호" minlength="8" />
+    <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+  </div>
+
+  <div>
+    <label for="nickname">Nickname</label>
+    <input type="text" id="nickname" th:field="*{nickname}" placeholder="nickname" />
+    <div th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}"></div>
+  </div>
+
+  <button type="submit">수정</button>
+</form>
+</body>
+</html>
