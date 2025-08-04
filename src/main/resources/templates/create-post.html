@@ -7,7 +7,7 @@
 <h1>글쓰기</h1>
 <hr>
 
-<form th:action="@{/post/create/{categoryName}(categoryName=${postRequestDTO.categoryName})}" th:object="${postRequestDTO}" method="post">
+<form th:action="@{|/post/create-post/${postRequestDTO.categoryName}|}" th:object="${postRequestDTO}" method="post">
   <!-- Spring Security CSRF 사용 시 필요 -->
 <!--  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
 
@@ -21,7 +21,7 @@
 
   <div>
 
-    <textarea id="content" th:field="*{content}" name="title"><</textarea>
+    <textarea id="content" th:field="*{content}" name="title"></textarea>
   </div>
 
   <button type="submit">생성</button>

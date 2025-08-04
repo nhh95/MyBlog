@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="${POST.title} + ' | 회원 자유게시판'">게시글 제목 | 회원 자유게시판</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+</head>
+<body>
+
+<header>
+  <h1>회원 자유게시판</h1>
+  <a th:href="@{/post/user-free-board}">목록으로 돌아가기</a>
+</header>
+
+<main>
+  <article>
+    <h2 th:text="${POST.title}">제목</h2>
+    <div class="meta">
+      <span>작성자: <strong th:text="${POST.userNickname}">작성자</strong></span> |
+      <span>카테고리: <em th:text="${POST.categoryName}">카테고리</em></span> |
+      <span>조회수: <span th:text="${POST.viewCount}">0</span></span> |
+      <span>작성일:
+          <span th:text="${#temporals.format(POST.createdAt, 'yyyy-MM-dd HH:mm')}">2025-08-03 12:00</span>
+        </span> |
+      <span th:if="${POST.updatedAt != null}">
+          수정일: <span th:text="${#temporals.format(POST.updatedAt, 'yyyy-MM-dd HH:mm')}">2025-08-04 09:00</span>
+        </span>
+    </div>
+
+    <hr/>
+
+    <div class="content" th:utext="${POST.content}">
+      내용이 여기에 들어갑니다.
+    </div>
+  </article>
+
+
+  <div class="actions">
+    <a th:href="@{|/post/update-post/${POST.id}|}">수정</a>
+    <form th:action="@{|/post/delete-post/${POST.id}|}" method="post" style="display:inline;">
+      <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+    </form>
+  </div>
+</main>
+
+<footer>
+
+</footer>
+
+
+</body>
+</html>

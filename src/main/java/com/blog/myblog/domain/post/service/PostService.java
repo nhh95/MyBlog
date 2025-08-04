@@ -35,18 +35,25 @@ public class PostService {
         postEntity.setTitle(dto.getTitle());
         postEntity.setContent(dto.getContent());
 
+
+        //System.out.println("넘어온 categoryName = [" + dto.getCategoryName() + "]");
         CategoryEntity category = categoryRepository.findByCategoryName(dto.getCategoryName());
+        //System.out.println("조회된 CategoryEntity = " + category);
+
         postEntity.setCategory(category);
+
+
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity userEntity = userRepository.findByEmail(email).orElseThrow();
-        userEntity.addPostEntity(postEntity);
+        postEntity.setUser(userEntity);
 
+        userEntity.addPostEntity(postEntity);
         userRepository.save(userEntity);
     }
 
     //게시글 하나 읽기
-    @Transactional(readOnly = true)
+    @Transactional
     public PostResponseDTO readOnePost(Long id) {
         PostEntity postEntity = postRepository.findById(id).orElseThrow();
 
@@ -73,6 +80,8 @@ public class PostService {
     public List<PostResponseDTO> readAllPost() {
 
         List<PostEntity> list = postRepository.findAllWithUserAndCategory();
+
+        System.out.println("▶️ readAllPost size = " + list.size());
 
         List<PostResponseDTO> dtos = new ArrayList<>();
 
@@ -110,6 +119,7 @@ public class PostService {
         postRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public Boolean isAccess(Long id) {
         //현재 로그인 되어있는 유저의 Email
         String sessionEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -129,6 +139,9 @@ public class PostService {
             return true;
 
         }
+
+        //나중에 비회원 게시판 만들때  비회원이 글 작성할때 사용한 패스워드를 통해서 인증 가능하게 만들어야될듯
+        //글을 수정과 삭제 할려면 작성시에 입력한 패스워드 입력
 
         //나머지는 불가
         return false;

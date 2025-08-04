@@ -66,6 +66,7 @@ public class UserController {
     @GetMapping("/user/update/{email}")
     public String updatePage(@PathVariable("email") String email, Model model) {
         if (!userService.isAccess(email)) {
+
             return "redirect:/login";
         }
 
