@@ -8,7 +8,7 @@
 <h1>게시글 수정</h1>
 <hr/>
 
-<form th:action="@{|/post/update-post/${POST.id}|}" th:object="${POST}" method="post">
+<form th:action="@{|/post/updatePost/${POST.id}|}" th:object="${POST}" method="post">
 
   <!-- Spring Security CSRF 사용 시 필요 -->
   <!--  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
@@ -27,8 +27,14 @@
 
   <div style="margin-top:1em;">
     <button type="submit">저장</button>
-    <a th:href="@{|/post/user-free-board/${POST.id}|}">취소</a>
+    <a th:href="@{|/post/userFreeBoard/${POST.id}|}">취소</a>
   </div>
 </form>
 </body>
+<script>
+  let message = "[[${msg}]]";
+  if(message != ""){
+      alert(message);
+  }
+</script>
 </html>

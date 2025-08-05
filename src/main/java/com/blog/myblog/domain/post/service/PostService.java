@@ -25,6 +25,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final ViewedPostsHolder viewedPostsHolder;
 
     //게시글 하나 만들기
     @Transactional
@@ -55,11 +56,18 @@ public class PostService {
     //게시글 하나 읽기
     @Transactional
     public PostResponseDTO readOnePost(Long id) {
+
+        //  세션에 기록이 없으면 조회수 증가
+        if (!viewedPostsHolder.contains(id)) {
+            PostEntity entityForCount = postRepository.findById(id).orElseThrow();
+            entityForCount.setViewCount(entityForCount.getViewCount() + 1);
+
+            viewedPostsHolder.add(id);
+        }
+
         PostEntity postEntity = postRepository.findById(id).orElseThrow();
 
         PostResponseDTO dto = new PostResponseDTO();
-
-        postEntity.setViewCount(postEntity.getViewCount() + 1);
 
         dto.setId(postEntity.getId());
         dto.setTitle(postEntity.getTitle());

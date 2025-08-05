@@ -16,7 +16,7 @@
 
 
 <div class="actions">
-  <a th:href="@{/post/create-post/{categoryName}(categoryName='UserFreeBoard')}">
+  <a th:href="@{/post/createPost/{categoryName}(categoryName='UserFreeBoard')}">
     글쓰기
   </a>
 </div>
@@ -38,7 +38,7 @@
     <td th:text="${post.id}">1</td>
     <td>
       <!-- 올바른 링크 표현 -->
-      <a th:href="@{/post/user-free-board/{id}(id=${post.id})}"
+      <a th:href="@{/post/userFreeBoard/{id}(id=${post.id})}"
          th:text="${post.title}">
         제목
       </a>
@@ -59,4 +59,10 @@
 
 
 </body>
+<script>
+  let message = "[[${msg}]]";
+  if(message != ""){
+      alert(message);
+  }
+</script>
 </html>

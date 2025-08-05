@@ -10,7 +10,7 @@
 
 <header>
   <h1>회원 자유게시판</h1>
-  <a th:href="@{/post/user-free-board}">목록으로 돌아가기</a>
+  <a th:href="@{/post/userFreeBoard}">목록으로 돌아가기</a>
 </header>
 
 <main>
@@ -37,8 +37,8 @@
 
 
   <div class="actions">
-    <a th:href="@{|/post/update-post/${POST.id}|}">수정</a>
-    <form th:action="@{|/post/delete-post/${POST.id}|}" method="post" style="display:inline;">
+    <a th:href="@{|/post/updatePost/${POST.id}|}">수정</a>
+    <form th:action="@{|/post/deletePost/${POST.id}|}" method="post" style="display:inline;">
       <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
     </form>
   </div>
@@ -50,4 +50,10 @@
 
 
 </body>
+<script>
+  let message = "[[${msg}]]";
+  if(message != ""){
+      alert(message);
+  }
+</script>
 </html>
