@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8" />
-  <title>게시글 수정 | 회원 자유게시판</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+
+<section layout:fragment="content">
+
 <body>
 <h1>게시글 수정</h1>
 <hr/>
@@ -37,4 +39,5 @@
       alert(message);
   }
 </script>
+</section>
 </html>

@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
 <head>
-  <meta charset="UTF-8" />
-  <title th:text="${POST.title} + ' | 회원 자유게시판'">게시글 제목 | 회원 자유게시판</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 </head>
+
 <body>
+<section layout:fragment="content">
 
 <header>
   <h1>회원 자유게시판</h1>
@@ -37,23 +39,15 @@
 
 
   <div class="actions">
-    <a th:href="@{|/post/updatePost/${POST.id}|}">수정</a>
+    <button type="button" th:onclick="|location.href='@{/post/updatePost/{id}(id=${POST.id})}'|">
+      수정
+    </button>
     <form th:action="@{|/post/deletePost/${POST.id}|}" method="post" style="display:inline;">
       <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
     </form>
   </div>
 </main>
-
-<footer>
-
-</footer>
-
-
+</section>
 </body>
-<script>
-  let message = "[[${msg}]]";
-  if(message != ""){
-      alert(message);
-  }
-</script>
+
 </html>

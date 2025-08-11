@@ -1,32 +1,39 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
 <head>
+<!--  <th:block layout:fragment="styles">
+
+  </th:block>-->
   <title>메인 페이지</title>
 </head>
 <body>
-<h1>main page</h1>
 
-<!-- 로그인 상태면 사용자 이름(이메일) 표시 -->
-<div th:if="${#authentication.principal != null}">
-  <p>안녕하세요, <span th:text="${#authentication.name}">user</span>님</p>
-</div>
+<section layout:fragment="content">
 
-  <a th:href="@{/login}">login</a><br/>
-  <a th:href="@{/user/join}">join</a><br/>
-
-
-  <a th:href="@{/logout}">logout</a><br/>
+  <h1 class="main-page-title">main page</h1>
 
 
 
-<a th:href="@{/post/userFreeBoard}">회원 자유 게시판</a><br/>
-<!--&lt;!&ndash; 비로그인 상태일 때 &ndash;&gt;-->
-<!--<div th:if="${#authentication.principal == null}">-->
-<!--</div>-->
+  <th:block th:with="
+  isAuth=${#authorization.expression('isAuthenticated()')},
+  isAdmin=${#authorization.expression('hasRole(''ADMIN'')')}">
 
-<!--&lt;!&ndash; 로그인 된 상태일 때 &ndash;&gt;-->
-<!--<div th:if="${#authentication.principal != null}">-->
-<!--</div>-->
+    <p>
+      안녕하세요,
+      <span th:text="${isAuth ? #authentication.name : '방문자님'}">방문자님</span>
+      당신의 권한은
+      <span th:text="${isAuth ? (isAdmin ? '어드민' : '유저') : '비회원'}">비회원</span>
+      입니다.
+    </p>
+
+  </th:block>
+
+
+
+
+</section>
 
 </body>
 </html>

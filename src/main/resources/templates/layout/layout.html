@@ -1,10 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
-</body>
+<head th:replace="~{layout/config :: head}"></head>
+
+
+    <body>
+    <header th:replace="~{layout/header :: header}"></header>
+
+        <nav th:replace="~{layout/sidebar :: sidebar}"></nav>
+
+        <div class="container">
+            <main layout:fragment="content">
+                <p>본문</p>
+            </main>
+        </div>
+
+        <footer th:replace="~{layout/footer :: footer}"></footer>
+    </body>
 </html>

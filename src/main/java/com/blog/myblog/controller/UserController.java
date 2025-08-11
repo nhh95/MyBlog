@@ -26,7 +26,7 @@ public class UserController {
 
 
     //회원가입 페이지
-    @GetMapping("/user/join")
+    @GetMapping("/join")
     public String joinPage(Model model) {
 
         model.addAttribute("userRequestDTO",new UserRequestDTO());

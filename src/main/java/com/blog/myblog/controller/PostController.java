@@ -3,6 +3,7 @@ package com.blog.myblog.controller;
 import com.blog.myblog.domain.post.dto.PostRequestDTO;
 import com.blog.myblog.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +26,17 @@ public class PostController {
 
     //글 생성 페이지
     @GetMapping("/post/createPost/{categoryName}")
-    public String createPage(@PathVariable String categoryName, Model model){
+    public String createPage(@PathVariable String categoryName, Model model,RedirectAttributes redirectAttributes){
         PostRequestDTO dto = new PostRequestDTO();
         dto.setCategoryName(categoryName);
         model.addAttribute("postRequestDTO",dto);
+
+        String sessionEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if(sessionEmail == "anonymousUser"){
+            redirectAttributes.addFlashAttribute("msg","글 생성 권한이 없습니다");
+            return "redirect:/post/userFreeBoard";
+        }
 
         return "createPost";
     }

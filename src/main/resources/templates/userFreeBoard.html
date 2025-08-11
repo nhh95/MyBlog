@@ -1,8 +1,23 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
 <head>
-  <meta charset="UTF-8" />
-  <title>회원 자유게시판</title>
+
+ <!-- <th:block layout:fragment="styles">
+    <link rel="stylesheet" th:href="@{/css/?.css}">
+  </th:block>
+
+  <th:block layout:fragment="script">
+    <script th:src="@{/js/?.js}"></script>
+  </th:block>-->
+
+  <th:block layout:fragment="script">
+    <script th:inline="javascript">
+      const message = /*[[${msg}]]*/ "";
+      if (message) alert(message);
+    </script>
+  </th:block>
   <style>
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 8px; border: 1px solid #ccc; }
@@ -11,14 +26,17 @@
   </style>
 
 </head>
+<section layout:fragment="content">
 <body>
+
 <h1>회원 자유게시판</h1>
 
 
 <div class="actions">
-  <a th:href="@{/post/createPost/{categoryName}(categoryName='UserFreeBoard')}">
+  <button type="button" th:onclick="|location.href='@{/post/createPost/{categoryName}(categoryName='UserFreeBoard')}'|">
     글쓰기
-  </a>
+  </button>
+
 </div>
 
 <table>
@@ -59,10 +77,13 @@
 
 
 </body>
-<script>
+
+<!--<script>
   let message = "[[${msg}]]";
   if(message != ""){
       alert(message);
   }
-</script>
+</script>-->
+
+</section>
 </html>
