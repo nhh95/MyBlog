@@ -1,27 +1,35 @@
 <!DOCTYPE html>
-<html lang="en"  xmlns:th="http://www.thymeleaf.org" th:fragment="sidebar">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
 
+<nav th:fragment="sidebar">
+    <ul>
+        <li>
+            <a href="#">포트폴리오</a>
+        </li>
+        <li>
+            <a href="#">프로젝트</a>
+        </li>
+    </ul>
 
-        <nav>
-            <ul>
-                <li>
-                    <a href="#">포트폴리오</a>
-                </li>
-                <li>
-                    <a href="#">프로젝트</a>
-                </li>
+    <h3>회원 게시판</h3>
+    <ul>
+        <li>
+            <a th:href="@{/post/userFreeBoard}">회원 자유게시판</a>
+        </li>
+    </ul>
 
-                <h3>회원 게시판</h3>
-                <li>
-                    <a th:href="@{/post/userFreeBoard}">회원 자유게시판</a>
-                </li>
+    <h3>비회원 게시판</h3>
+    <ul>
+        <li>
+            <a href="#">비회원 자유게시판</a>
+        </li>
+    </ul>
+</nav>
 
-                <h3>비회원 게시판</h3>
-                <li>
-                    <a href="#">비회원 자유게시판</a>
-                </li>
-            </ul>
-        </nav>
-
-
+</body>
 </html>
