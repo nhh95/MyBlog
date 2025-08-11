@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <title>회원 정보 수정</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<section layout:fragment="content">
 <body>
 <h1>회원 정보 수정</h1>
 <hr>
@@ -27,4 +28,5 @@
   <button type="submit">수정</button>
 </form>
 </body>
+</section>
 </html>

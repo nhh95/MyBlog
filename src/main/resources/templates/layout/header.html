@@ -1,10 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org" >
 
-</body>
+
+<header th:fragment="header" class="main-header">
+    <a class="header title-logo" th:href="@{/}">여기에 타이틀을 입력</a>
+    <div class="util use-top">
+        <div class="search">
+            <input class="searchInput" type="text" name="search" placeholder="Search.." />
+        </div>
+        <div class="login-logout">
+            <a th:href="@{/login}">login</a>
+            <a th:href="@{/logout}">logout</a>
+            <a th:href="@{/join}">join</a>
+        </div>
+    </div>
+</header>
+
 </html>
