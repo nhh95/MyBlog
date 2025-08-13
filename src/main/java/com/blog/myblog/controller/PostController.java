@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @Controller
 @SessionAttributes("viewedPosts")
 @RequiredArgsConstructor

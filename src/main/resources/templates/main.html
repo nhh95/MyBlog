@@ -2,38 +2,24 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
-<head>
-<!--  <th:block layout:fragment="styles">
+  <head>
 
-  </th:block>-->
-  <title>메인 페이지</title>
-</head>
-<body>
-
-<section layout:fragment="content">
-
-  <h1 class="main-page-title">main page</h1>
-
-
-
-  <th:block th:with="
-  isAuth=${#authorization.expression('isAuthenticated()')},
-  isAdmin=${#authorization.expression('hasRole(''ADMIN'')')}">
-
-    <p>
-      안녕하세요,
-      <span th:text="${isAuth ? #authentication.name : '방문자님'}">방문자님</span>
-      당신의 권한은
-      <span th:text="${isAuth ? (isAdmin ? '어드민' : '유저') : '비회원'}">비회원</span>
-      입니다.
-    </p>
-
-  </th:block>
-
-
-
-
-</section>
-
-</body>
+  </head>
+  <section layout:fragment="content">
+    <body>
+      <title>메인 페이지</title>
+      <h1 class="main-page-title">main page</h1>
+      <th:block th:with="
+          isAuth=${#authorization.expression('isAuthenticated()')},
+          isAdmin=${#authorization.expression('hasRole(''ADMIN'')')}">
+        <p>
+          안녕하세요,
+          <span th:text="${isAuth ? #authentication.name : '방문자님'}">방문자님</span>
+          당신의 권한은
+          <span th:text="${isAuth ? (isAdmin ? '어드민' : '유저') : '비회원'}">비회원</span>
+          입니다.
+        </p>
+      </th:block>
+    </body>
+  </section>
 </html>
