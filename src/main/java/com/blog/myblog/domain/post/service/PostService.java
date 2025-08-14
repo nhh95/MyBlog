@@ -1,5 +1,6 @@
 package com.blog.myblog.domain.post.service;
 
+import com.blog.myblog.domain.file.service.MinioService;
 import com.blog.myblog.domain.post.dto.PostRequestDTO;
 import com.blog.myblog.domain.post.dto.PostResponseDTO;
 import com.blog.myblog.domain.post.entity.CategoryEntity;
@@ -9,6 +10,9 @@ import com.blog.myblog.domain.post.repository.PostRepository;
 import com.blog.myblog.domain.user.entity.UserEntity;
 import com.blog.myblog.domain.user.repository.UserRepository;
 
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,18 +21,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 
 
-import javax.lang.model.element.NestingKind;
+
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-import static java.nio.file.Files.exists;
+
 
 @Service
 @RequiredArgsConstructor
@@ -38,12 +40,12 @@ public class PostService {
     private final CategoryRepository categoryRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ViewedPostsHolder viewedPostsHolder;
+    private final MinioService minioService;
 
     @Value("${file.temp.path}")
     private String tempFilePath;
 
-    @Value("${file.final.path}")
-    private String finalFilePath;
+
 
     //게시글 하나 만들기
     @Transactional
@@ -105,8 +107,6 @@ public class PostService {
 
         List<PostEntity> list = postRepository.findAllWithUserAndCategory();
 
-        System.out.println("▶️ readAllPost size = " + list.size());
-
         List<PostResponseDTO> dtos = new ArrayList<>();
 
         for(PostEntity postEntity : list) {
@@ -136,10 +136,10 @@ public class PostService {
         String newContent = dto.getContent();
 
         // 기존 게시글에서 삭제된 이미지 파일 처리
-        cleanupDeletedImages(postEntity.getContent(), dto.getContent());
+        cleanupDeletedImages(oldContent, newContent);
 
         // 새로운 이미지 파일 저장 및 경로 업데이트
-        String updatedContent = savePostImagesAndGetContent(dto.getContent());
+        String updatedContent = savePostImagesAndGetContent(newContent);
 
         postEntity.setTitle(dto.getTitle());
         postEntity.setContent(updatedContent);
@@ -214,13 +214,12 @@ public class PostService {
                 String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
 
                 File tempFile = new File(tempFilePath + fileName);
-                File finalFile = new File(finalFilePath + fileName);
 
-                // 이미 최종 폴더에 있는 이미지인지 확인하여 불필요한 이동 방지
-                if (!finalFile.exists() && tempFile.exists()) {
+                if (tempFile.exists()) {
                     try {
-                        Files.move(tempFile.toPath(), finalFile.toPath());
-                        updatedContent = updatedContent.replace(imageUrl, "/summernoteImage/" + fileName);
+                        String minioFileUrl = minioService.minioUploadFile(tempFile);
+                        updatedContent = updatedContent.replace(imageUrl, minioFileUrl);
+                        Files.delete(tempFile.toPath());
                     } catch (IOException e) {
                         System.err.println("Failed to move image file: " + fileName);
                         e.printStackTrace();
@@ -240,16 +239,18 @@ public class PostService {
         oldImageUrls.removeAll(newImageUrls);
 
         for (String imageUrl : oldImageUrls) {
-            try {
-                String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-                File imageFile = new File(finalFilePath + fileName);
+            // MinIO에 있는 이미지 파일만 삭제 대상으로 지정
+            if (imageUrl.contains("/summernoteImage/")) {
+                try {
+                    String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
 
-                if (imageFile.exists()) {
-                    Files.delete(imageFile.toPath());
-                    System.out.println("Deleted old image file: " + fileName);
+                    // 로컬 파일 대신 MinIOService를 통해 파일 삭제
+                    minioService.minioDeleteFile(fileName);
+                    System.out.println("Deleted old image file from MinIO: " + fileName);
+                } catch (Exception e) {
+                    System.err.println("Failed to delete old image file from MinIO: " + imageUrl);
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                System.err.println("Failed to delete old image file: " + imageUrl);
             }
         }
     }
@@ -259,22 +260,29 @@ public class PostService {
         Set<String> imageUrls = extractImageUrls(content);
 
         for (String imageUrl : imageUrls) {
+            // MinIO에 있는 이미지 파일만 삭제 대상으로 지정
             if (imageUrl.contains("/summernoteImage/")) {
                 try {
                     String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-                    File imageFile = new File(finalFilePath + fileName);
 
-                    if (imageFile.exists()) {
-                        Files.delete(imageFile.toPath());
-                        System.out.println("Deleted image file: " + fileName);
-                    }
+                    // 로컬 파일 대신 MinIOService를 통해 파일 삭제
+                    minioService.minioDeleteFile(fileName);
+                    System.out.println("Deleted image file from MinIO: " + fileName);
                 } catch (Exception e) {
-                    System.err.println("Failed to delete image file: " + imageUrl);
+                    System.err.println("Failed to delete image file from MinIO: " + imageUrl);
+                    e.printStackTrace();
                 }
             }
         }
     }
 }
+
+
+
+
+
+
+
 
 
 

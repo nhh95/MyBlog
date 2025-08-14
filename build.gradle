@@ -43,6 +43,7 @@ dependencies {
 	implementation 'org.webjars:jquery:3.7.1'
 	implementation 'org.webjars:jquery-ui:1.14.1'
 
+	implementation 'io.minio:minio:8.5.17'
 
 	implementation 'commons-io:commons-io:2.6'
 	implementation 'com.google.code.gson:gson:2.8.6'
