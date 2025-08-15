@@ -2,20 +2,28 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" >
 
-<head th:fragment="head">
-  <meta charset="UTF-8" />
+  <head th:fragment="head">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!--jquery추가-->
+    <link rel="stylesheet" th:href="@{/webjars/jquery-ui/1.14.1/jquery-ui.min.css}">
+    <script th:src="@{/webjars/jquery/3.7.1/jquery.min.js}"></script>
+    <script th:src="@{/webjars/jquery-ui/1.14.1/jquery-ui.min.js}"></script>
+
+    <!--summernote 추가-->
+    <script th:src="@{/js/summernote/summernote-lite.js}"></script>
+    <script th:src="@{/js/summernote/lang/summernote-ko-KR.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/summernote/summernote-lite.css}"/>
 
 
 
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <script defer th:src="@{/js/post.js}"></script>
 
+    <th:block layout:fragment="styles"></th:block>
+    <th:block layout:fragment="script"></th:block>
 
-  <link rel="stylesheet" th:href="@{/css/styles.css}" />
-  <script th:src="@{/js/post.js}"></script>
-
-  <th:block layout:fragment="styles"></th:block>
-  <th:block layout:fragment="script"></th:block>
-
-  <title>MyBlog</title>
-</head>
+    <title>MyBlog</title>
+  </head>
 </html>

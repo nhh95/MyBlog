@@ -11,5 +11,10 @@ public class MainController {
         return "main";
     }
 
+    @GetMapping("/testSummernote")
+    public String testSummernote() {
+        return "testSummernote";
+    }
+
 
 }

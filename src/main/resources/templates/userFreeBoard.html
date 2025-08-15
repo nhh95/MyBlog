@@ -2,88 +2,60 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
-<head>
+  <head>
+    <th:block layout:fragment="script">
+      <script th:inline="javascript">
+        const message = /*[[${msg}]]*/ "";
+        if (message) alert(message);
+      </script>
+    </th:block>
+    <style>
+      table { width: 100%; border-collapse: collapse; }
+      th, td { padding: 8px; border: 1px solid #ccc; }
+      th { background: #f0f0f0; }
+      .actions { margin-bottom: 1rem; }
+    </style>
+  </head>
+  <section layout:fragment="content">
+    <body>
 
- <!-- <th:block layout:fragment="styles">
-    <link rel="stylesheet" th:href="@{/css/?.css}">
-  </th:block>
+      <h1>회원 자유게시판</h1>
 
-  <th:block layout:fragment="script">
-    <script th:src="@{/js/?.js}"></script>
-  </th:block>-->
-
-  <th:block layout:fragment="script">
-    <script th:inline="javascript">
-      const message = /*[[${msg}]]*/ "";
-      if (message) alert(message);
-    </script>
-  </th:block>
-  <style>
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 8px; border: 1px solid #ccc; }
-    th { background: #f0f0f0; }
-    .actions { margin-bottom: 1rem; }
-  </style>
-
-</head>
-<section layout:fragment="content">
-<body>
-
-<h1>회원 자유게시판</h1>
-
-
-<div class="actions">
-  <button type="button" th:onclick="|location.href='@{/post/createPost/{categoryName}(categoryName='UserFreeBoard')}'|">
-    글쓰기
-  </button>
-
-</div>
-
-<table>
-  <thead>
-  <tr>
-    <th>ID</th>
-    <th>제목</th>
-    <th>작성자</th>
-    <th>카테고리</th>
-    <th>조회수</th>
-    <th>작성일</th>
-  </tr>
-  </thead>
-  <tbody>
-  <!-- boardList 가 비어있으면 반복 안 함 -->
-  <tr th:each="post : ${boardList}">
-    <td th:text="${post.id}">1</td>
-    <td>
-      <!-- 올바른 링크 표현 -->
-      <a th:href="@{/post/userFreeBoard/{id}(id=${post.id})}"
-         th:text="${post.title}">
-        제목
-      </a>
-    </td>
-    <td th:text="${post.userNickname}">닉네임</td>
-    <td th:text="${post.categoryName}">카테고리</td>
-    <td th:text="${post.viewCount}">0</td>
-    <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">
-      2025-08-01
-    </td>
-  </tr>
-  <!-- 빈 리스트 처리 -->
-  <tr th:if="${#lists.isEmpty(boardList)}">
-    <td colspan="6">게시물이 없습니다.</td>
-  </tr>
-  </tbody>
-</table>
-
-
-</body>
-
-<!--<script>
-  let message = "[[${msg}]]";
-  if(message != ""){
-      alert(message);
-  }
-</script>-->
-
-</section>
+      <div class="actions">
+        <button type="button" th:onclick="|location.href='@{/post/createPost/{categoryName}(categoryName='UserFreeBoard')}'|">
+          글쓰기
+        </button>
+      </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>제목</th>
+              <th>작성자</th>
+              <th>카테고리</th>
+              <th>조회수</th>
+              <th>작성일</th>
+            </tr>
+          </thead>
+            <tbody>
+              <tr th:each="post : ${boardList}">
+                <td th:text="${post.id}">1</td>
+                <td>
+                  <a th:href="@{/post/userFreeBoard/{id}(id=${post.id})}"
+                     th:text="${post.title}">
+                    제목
+                  </a>
+                </td>
+                <td th:text="${post.userNickname}">닉네임</td>
+                <td th:text="${post.categoryName}">카테고리</td>
+                <td th:text="${post.viewCount}">0</td>
+                <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">2025-08-01</td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(boardList)}">
+                <td colspan="6">게시물이 없습니다.</td>
+              </tr>
+            </tbody>
+        </table>
+    </body>
+  </section>
 </html>

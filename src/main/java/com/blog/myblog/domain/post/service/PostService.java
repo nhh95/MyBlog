@@ -1,5 +1,6 @@
 package com.blog.myblog.domain.post.service;
 
+import com.blog.myblog.domain.file.service.MinioService;
 import com.blog.myblog.domain.post.dto.PostRequestDTO;
 import com.blog.myblog.domain.post.dto.PostResponseDTO;
 import com.blog.myblog.domain.post.entity.CategoryEntity;
@@ -8,15 +9,28 @@ import com.blog.myblog.domain.post.repository.CategoryRepository;
 import com.blog.myblog.domain.post.repository.PostRepository;
 import com.blog.myblog.domain.user.entity.UserEntity;
 import com.blog.myblog.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 
-import java.util.ArrayList;
-import java.util.List;
+
+
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,24 +40,26 @@ public class PostService {
     private final CategoryRepository categoryRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ViewedPostsHolder viewedPostsHolder;
+    private final MinioService minioService;
+
+    @Value("${file.temp.path}")
+    private String tempFilePath;
+
+
 
     //게시글 하나 만들기
     @Transactional
     public void createOnePost(PostRequestDTO dto){
 
+        // 이미지 임시 폴더에서 최종 폴더로 이동 및 경로 업데이트
+        String processedContent = savePostImagesAndGetContent(dto.getContent());
+
         PostEntity postEntity = new PostEntity();
-
         postEntity.setTitle(dto.getTitle());
-        postEntity.setContent(dto.getContent());
+        postEntity.setContent(processedContent);
 
-
-        //System.out.println("넘어온 categoryName = [" + dto.getCategoryName() + "]");
         CategoryEntity category = categoryRepository.findByCategoryName(dto.getCategoryName());
-        //System.out.println("조회된 CategoryEntity = " + category);
-
         postEntity.setCategory(category);
-
-
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity userEntity = userRepository.findByEmail(email).orElseThrow();
@@ -52,6 +68,8 @@ public class PostService {
         userEntity.addPostEntity(postEntity);
         userRepository.save(userEntity);
     }
+
+
 
     //게시글 하나 읽기
     @Transactional
@@ -89,8 +107,6 @@ public class PostService {
 
         List<PostEntity> list = postRepository.findAllWithUserAndCategory();
 
-        System.out.println("▶️ readAllPost size = " + list.size());
-
         List<PostResponseDTO> dtos = new ArrayList<>();
 
         for(PostEntity postEntity : list) {
@@ -116,15 +132,33 @@ public class PostService {
 
         PostEntity postEntity = postRepository.findById(id).orElseThrow();
 
+        String oldContent = postEntity.getContent();
+        String newContent = dto.getContent();
+
+        // 기존 게시글에서 삭제된 이미지 파일 처리
+        cleanupDeletedImages(oldContent, newContent);
+
+        // 새로운 이미지 파일 저장 및 경로 업데이트
+        String updatedContent = savePostImagesAndGetContent(newContent);
+
         postEntity.setTitle(dto.getTitle());
-        postEntity.setContent(dto.getContent());
+        postEntity.setContent(updatedContent);
 
         postRepository.save(postEntity);
     }
 
     @Transactional
     public void deleteOnePost(Long id) {
-        postRepository.deleteById(id);
+
+        // 1. 게시글 내용을 조회
+        PostEntity postEntity = postRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("해당 게시글이 존재하지 않습니다. id=" + id));
+
+        // 2. 게시글 본문에서 이미지 URL 추출 및 파일 삭제
+        deletePostImages(postEntity.getContent());
+
+        // 3. 데이터베이스에서 게시글 삭제
+        postRepository.delete(postEntity);
     }
 
     @Transactional(readOnly = true)
@@ -154,4 +188,101 @@ public class PostService {
         //나머지는 불가
         return false;
     }
+
+
+    // ----- 이미지 파일 처리 관련 private 메서드들 -----
+
+    // 게시글 내용에서 이미지 URL들을 추출
+    private Set<String> extractImageUrls(String content) {
+        Set<String> imageUrls = new HashSet<>();
+        Pattern pattern = Pattern.compile("<img[^>]*src=[\"']([^\"']*)[\"'][^>]*>");
+        Matcher matcher = pattern.matcher(content);
+
+        while (matcher.find()) {
+            imageUrls.add(matcher.group(1));
+        }
+        return imageUrls;
+    }
+
+    // 임시 폴더의 이미지를 최종 폴더로 이동시키고 게시글 내용을 반환
+    private String savePostImagesAndGetContent(String content){
+        String updatedContent = content;
+        Set<String> imageUrls = extractImageUrls(content);
+
+        for (String imageUrl : imageUrls) {
+            if (imageUrl.contains("/summernoteImage/")) {
+                String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+
+                File tempFile = new File(tempFilePath + fileName);
+
+                if (tempFile.exists()) {
+                    try {
+                        String minioFileUrl = minioService.minioUploadFile(tempFile);
+                        updatedContent = updatedContent.replace(imageUrl, minioFileUrl);
+                        Files.delete(tempFile.toPath());
+                    } catch (IOException e) {
+                        System.err.println("Failed to move image file: " + fileName);
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return updatedContent;
+    }
+
+    // 수정 시 삭제된 이미지 파일들을 정리
+    private void cleanupDeletedImages(String oldContent, String newContent){
+        Set<String> oldImageUrls = extractImageUrls(oldContent);
+        Set<String> newImageUrls = extractImageUrls(newContent);
+
+        // oldImageUrls에서 newImageUrls에 포함된 URL을 제거
+        oldImageUrls.removeAll(newImageUrls);
+
+        for (String imageUrl : oldImageUrls) {
+            // MinIO에 있는 이미지 파일만 삭제 대상으로 지정
+            if (imageUrl.contains("/summernoteImage/")) {
+                try {
+                    String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+
+                    // 로컬 파일 대신 MinIOService를 통해 파일 삭제
+                    minioService.minioDeleteFile(fileName);
+                    System.out.println("Deleted old image file from MinIO: " + fileName);
+                } catch (Exception e) {
+                    System.err.println("Failed to delete old image file from MinIO: " + imageUrl);
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // 게시글 삭제 시 이미지 파일들을 정리
+    private void deletePostImages(String content) {
+        Set<String> imageUrls = extractImageUrls(content);
+
+        for (String imageUrl : imageUrls) {
+            // MinIO에 있는 이미지 파일만 삭제 대상으로 지정
+            if (imageUrl.contains("/summernoteImage/")) {
+                try {
+                    String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+
+                    // 로컬 파일 대신 MinIOService를 통해 파일 삭제
+                    minioService.minioDeleteFile(fileName);
+                    System.out.println("Deleted image file from MinIO: " + fileName);
+                } catch (Exception e) {
+                    System.err.println("Failed to delete image file from MinIO: " + imageUrl);
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
