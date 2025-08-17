@@ -1,4 +1,4 @@
-package com.blog.myblog.domain.file.service;
+package com.blog.myblog.domain.file;
 
 
 import org.springframework.beans.factory.annotation.Value;

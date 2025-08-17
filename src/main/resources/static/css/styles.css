@@ -131,7 +131,7 @@ nav {
 
 
   .main-header {
-    height: var(--header-h);
+    height: var(--main-header-h);
     align-items: center;
   }
 
@@ -251,4 +251,116 @@ a:hover { text-decoration: none; }
 
 .main-page-title{
     font-size: 40px
+}
+
+
+.post-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.post-actions .post-actions-left-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.post-actions .post-action-right-buttons {
+
+}
+
+.create-post-button{
+    text-align: right;
+
+}
+
+.post-list-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.post-list-header {
+    white-space: nowrap;
+
+}
+
+.post-list tr {
+    border-bottom: 1px solid #e0e0e0;
+    transition: background-color 0.2s;
+}
+
+.post-list tr:hover {
+    background-color: #f5f5f5;
+}
+
+.post-list td {
+
+    vertical-align: middle;
+}
+
+/* 빈 목록 행은 호버 효과 제외 */
+.post-list tr:has(td[colspan]):hover {
+    background-color: transparent;
+}
+
+
+.post-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* 고정 테이블 레이아웃 */
+}
+
+.post-list-header th,
+.post-list td {
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 긴 텍스트는 ... 으로 표시 */
+}
+
+.post-list-header th {
+    background: #f0f0f0;
+    text-align: center;
+}
+
+/* 각 컬럼별 너비 지정 */
+.post-list-id {
+    width: 8%;
+    text-align: center;
+}
+
+.post-list-title {
+    width: 50%; /* 제목 영역을 더 넓게 */
+}
+
+.post-list-nickname {
+    width: 15%;
+    text-align: center;
+}
+
+.post-list-viewcount {
+    width: 10%;
+    text-align: center;
+}
+
+.post-list-createdAt {
+    width: 17%;
+    text-align: center;
+}
+
+/* 헤더에도 동일한 너비 적용 */
+.post-list-header th:nth-child(1) { width: 8%; }   /* ID */
+.post-list-header th:nth-child(2) { width: 61%; }  /* 제목 */
+.post-list-header th:nth-child(3) { width: 8%; }  /* 작성자 */
+.post-list-header th:nth-child(4) { width: 8%; }  /* 조회수 */
+.post-list-header th:nth-child(5) { width: 15%; }  /* 작성일 */
+
+.create-post-button {
+    margin-bottom: 1rem;
+}
+
+#post-content{
+    min-height: 300px;
 }

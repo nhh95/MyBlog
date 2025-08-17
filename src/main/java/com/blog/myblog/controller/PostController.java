@@ -88,12 +88,12 @@ public class PostController {
 
         if(!postService.isAccess(id)){
 
-            return "redirect:/post/userFreeBoard";
+            return "redirect:/post/userFreeBoard/{id}";
         }
 
         postService.updateOnePost(id,dto);
 
-        return "redirect:/post/userFreeBoard";
+        return "redirect:/post/userFreeBoard/{id}";
     }
 
 

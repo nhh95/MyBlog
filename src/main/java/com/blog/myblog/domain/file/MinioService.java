@@ -1,4 +1,4 @@
-package com.blog.myblog.domain.file.service;
+package com.blog.myblog.domain.file;
 
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;

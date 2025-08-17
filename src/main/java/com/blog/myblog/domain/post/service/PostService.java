@@ -1,6 +1,8 @@
 package com.blog.myblog.domain.post.service;
 
-import com.blog.myblog.domain.file.service.MinioService;
+import com.blog.myblog.domain.comment.entity.CommentEntity;
+import com.blog.myblog.domain.comment.repository.CommentRepository;
+import com.blog.myblog.domain.file.MinioService;
 import com.blog.myblog.domain.post.dto.PostRequestDTO;
 import com.blog.myblog.domain.post.dto.PostResponseDTO;
 import com.blog.myblog.domain.post.entity.CategoryEntity;
@@ -10,9 +12,6 @@ import com.blog.myblog.domain.post.repository.PostRepository;
 import com.blog.myblog.domain.user.entity.UserEntity;
 import com.blog.myblog.domain.user.repository.UserRepository;
 
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.RemoveObjectArgs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,7 +28,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-
+import java.util.stream.Collectors;
 
 
 @Service
@@ -38,6 +37,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final CommentRepository commentRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ViewedPostsHolder viewedPostsHolder;
     private final MinioService minioService;
@@ -104,8 +104,16 @@ public class PostService {
     //게시글 전부 읽기
     @Transactional
     public List<PostResponseDTO> readAllPost() {
+        // 게시글 목록 조회
+        List<PostEntity> list = postRepository.findAllWithUserAndCategoryOrderByCreatedAtDesc();
 
-        List<PostEntity> list = postRepository.findAllWithUserAndCategory();
+        // 댓글 개수 조회 (한 번의 쿼리로 모든 게시글의 댓글 개수를 가져옴)
+        List<Object[]> commentCounts = postRepository.findPostCommentCounts();
+        Map<Long, Long> commentCountMap = commentCounts.stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],          // postId
+                        row -> (Long) row[1]           // commentCount
+                ));
 
         List<PostResponseDTO> dtos = new ArrayList<>();
 
@@ -121,11 +129,15 @@ public class PostService {
             dto.setCreatedAt(postEntity.getCreatedAt());
             dto.setUpdatedAt(postEntity.getUpdatedAt());
 
-            dtos.add(dto);
+            // 댓글 개수 설정 (없으면 0)
+            Long commentCount = commentCountMap.getOrDefault(postEntity.getId(), 0L);
+            dto.setCommentCount(commentCount.intValue());
 
+            dtos.add(dto);
         }
         return dtos;
     }
+
 
     @Transactional
     public void updateOnePost(Long id,PostRequestDTO dto){

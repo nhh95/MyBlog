@@ -1,6 +1,7 @@
-package com.blog.myblog.domain.post.entity;
+package com.blog.myblog.domain.comment.entity;
 
 
+import com.blog.myblog.domain.post.entity.PostEntity;
 import com.blog.myblog.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -15,17 +16,15 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class PostEntity {
+public class CommentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
-
     @Lob
-    @Column(columnDefinition = "LONGTEXT")
-    private String content;
+    @Column(columnDefinition = "LONGTEXT",nullable = false,length = 1000)
+    private String commentContent;
 
     @CreatedDate
     @Column(updatable = false)
@@ -34,20 +33,12 @@ public class PostEntity {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = true, foreignKey = @ForeignKey(ConstraintMode.CONSTRAINT))
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "post_id",nullable = false)
+    private PostEntity post;
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id",nullable = false)
     private UserEntity user;
-
-    public void setUserEntity(UserEntity userEntity) {
-        this.user = userEntity;
-    }
-
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private CategoryEntity category;
-
-    private Long viewCount = 0L;
 }
-
