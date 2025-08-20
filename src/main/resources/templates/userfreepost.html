@@ -39,15 +39,17 @@
         </article>
           <div class="post-actions">
               <div class="post-actions-left-buttons">
-                  <button type="button" th:onclick="|location.href='@{/post/userFreeBoard}'|">
-                      목록으로 돌아가기
+                  <button type="button" th:onclick="|location.href='@{/post/{categoryName}(categoryName=${POST.categoryName})}'|">
+
+                  목록으로 돌아가기
                   </button>
               </div>
               <div class="post-action-right-buttons">
-                  <button type="button" th:onclick="|location.href='@{/post/updatePost/{id}(id=${POST.id})}'|">
-                      수정
+                  <button type="button" th:onclick="|location.href='@{/post/{categoryName}/updatepost/{id}(categoryName=${POST.categoryName}, id=${POST.id})}'|">
+                  수정
                   </button>
-                  <form th:action="@{|/post/deletePost/${POST.id}|}" method="post" style="display:inline;">
+                  <form th:action="@{/post/{categoryName}/deletePost/{id}(categoryName=${POST.categoryName}, id=${POST.id})}"
+                        method="post" style="display:inline;">
                       <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
                   </form>
               </div>

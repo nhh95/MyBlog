@@ -4,31 +4,30 @@
 
 </head>
     <body>
-
         <nav th:fragment="sidebar">
-            <ul>
-                <li>
-                    <a href="#">포트폴리오</a>
-                </li>
-                <li>
-                    <a href="#">프로젝트</a>
-                </li>
-            </ul>
+            <div class="nav-sections">
+                <div class="nav-section">
+                    <h3>포트폴리오</h3>
+                    <ul>
+                        <li><a href="/post/portfolioboard">포트폴리오</a></li>
+                        <li><a href="/post/projectboard">프로젝트</a></li>
+                    </ul>
+                </div>
 
-            <h3>회원 게시판</h3>
-            <ul>
-                <li>
-                    <a th:href="@{/post/userFreeBoard}">회원 자유게시판</a>
-                </li>
-            </ul>
+                <div class="nav-section">
+                    <h3>회원 게시판</h3>
+                    <ul>
+                        <li><a href="/post/userfreeboard">자유게시판</a></li>
+                    </ul>
+                </div>
 
-            <h3>비회원 게시판</h3>
-            <ul>
-                <li>
-                    <a href="#">비회원 자유게시판</a>
-                </li>
-            </ul>
+                <div class="nav-section">
+                    <h3>비회원 게시판</h3>
+                    <ul>
+                        <li><a href="/post/guestFreeBoard">비회원 자유게시판</a></li>
+                    </ul>
+                </div>
+            </div>
         </nav>
-
     </body>
 </html>

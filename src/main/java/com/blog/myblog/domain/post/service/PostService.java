@@ -13,6 +13,8 @@ import com.blog.myblog.domain.user.entity.UserEntity;
 import com.blog.myblog.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -101,7 +103,7 @@ public class PostService {
 
     }
 
-    //게시글 전부 읽기
+/*    //게시글 전부 읽기
     @Transactional
     public List<PostResponseDTO> readAllPost() {
         // 게시글 목록 조회
@@ -136,8 +138,41 @@ public class PostService {
             dtos.add(dto);
         }
         return dtos;
-    }
+    }*/
 
+    /*게시글 목록 가져오기*/
+    public Page<PostResponseDTO> findAllByCategory(String categoryName, Pageable pageable) {
+        Page<PostEntity> postPage = postRepository.findByCategoryNameOrderByIdDesc(categoryName,pageable);
+
+        // 댓글 개수 조회
+        List<Object[]> commentCounts = postRepository.findPostCommentCounts();
+        Map<Long, Long> commentCountMap = commentCounts.stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
+
+
+        return postPage.map(post ->{
+            PostResponseDTO dto = new PostResponseDTO();
+
+            dto.setId(post.getId());
+            dto.setTitle(post.getTitle());
+            dto.setContent(post.getContent());
+            dto.setUserNickname(post.getUser().getNickname());
+            dto.setCategoryName(post.getCategory().getCategoryName());
+            dto.setViewCount(post.getViewCount());
+            dto.setCreatedAt(post.getCreatedAt());
+            dto.setUpdatedAt(post.getUpdatedAt());
+            dto.setFirstImageUrl(extractFirstImageUrl(post.getContent()));
+            dto.setPlainContent(getPlainTextContent(post.getContent()));
+            // 댓글 개수 설정
+            Long commentCount = commentCountMap.getOrDefault(post.getId(), 0L);
+            dto.setCommentCount(commentCount.intValue());
+
+            return dto;
+        });
+    }
 
     @Transactional
     public void updateOnePost(Long id,PostRequestDTO dto){
@@ -215,6 +250,36 @@ public class PostService {
         }
         return imageUrls;
     }
+
+    // 게시글 내용에서 첫 번째 이미지 URL 추출
+    private String extractFirstImageUrl(String content) {
+        if (content == null || content.isEmpty()) {
+            return null;
+        }
+
+        Pattern pattern = Pattern.compile("<img[^>]*src=[\"']([^\"']*)[\"'][^>]*>");
+        Matcher matcher = pattern.matcher(content);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
+    // HTML 태그를 제거한 순수 텍스트 내용을 반환하는 메서드
+    public String getPlainTextContent(String content) {
+        if (content == null || content.isEmpty()) {
+            return "";
+        }
+
+        // HTML 태그 제거
+        String plainText = content.replaceAll("<[^>]*>", "");
+        // 연속된 공백을 하나로 변환
+        plainText = plainText.replaceAll("\\s+", " ");
+        // 앞뒤 공백 제거
+        return plainText.trim();
+    }
+
 
     // 임시 폴더의 이미지를 최종 폴더로 이동시키고 게시글 내용을 반환
     private String savePostImagesAndGetContent(String content){

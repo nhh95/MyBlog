@@ -11,7 +11,7 @@
       <h1>회원 가입</h1>
       <hr>
 
-      <form th:action="@{/user/join}"  th:object="${userRequestDTO}" method="post" >
+      <form th:action="@{/templates/userpage/join}" th:object="${userRequestDTO}" method="post" >
         <div>
           <label for="email">UserEmail</label>
           <input type="email" id="email" th:field="*{email}" placeholder="email" required />
