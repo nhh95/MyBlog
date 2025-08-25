@@ -17,6 +17,13 @@ public class PostRequestDTO {
     @NotBlank
     private String content;
 
+    // 비회원용 필드 추가
+    private String guestNickname;
+    private String guestSecret;
+
+    // 인증용 필드 (수정/삭제 시 사용)
+    private String verificationSecret;
+
 
     private String categoryName;
 }

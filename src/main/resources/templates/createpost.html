@@ -18,7 +18,19 @@
 
               <input type="hidden" th:field="*{categoryName}">
 
-             <div>
+                <!-- 비회원인 경우에만 닉네임과 비밀번호 필드 표시 -->
+                <div th:if="${isGuest}">
+                    <div>
+                        <input type="text" th:field="*{guestNickname}" placeholder="닉네임" required maxlength="15"/>
+                    </div>
+                    <div>
+                        <input type="password" th:field="*{guestSecret}" placeholder="비밀번호 (글 수정/삭제 시 필요)" required minlength="6"/>
+                    </div>
+                    <hr>
+                </div>
+
+
+              <div>
                 <input type="text" id="title" th:field="*{title}" minlength="2"  maxlength="100" name="title" placeholder="제목" required/>
               </div>
 

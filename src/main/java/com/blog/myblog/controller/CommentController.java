@@ -56,9 +56,9 @@ public class CommentController {
     public ResponseEntity<Map<String, Object>> updateComment(
             @PathVariable Long commentId,
             @RequestBody CommentRequestDTO requestDTO,
-            Authentication authentication) {
+            @RequestParam(required = false) Authentication authentication) {
         try {
-            String userEmail = authentication.getName();
+            String userEmail = (authentication != null) ? authentication.getName() : null;
             CommentResponseDTO comment = commentService.updateComment(commentId, requestDTO, userEmail);
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -72,6 +72,7 @@ public class CommentController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
 
     // 댓글 삭제
     @DeleteMapping("/{commentId}")
@@ -102,4 +103,21 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
+    //비회원 댓글 삭제
+    @DeleteMapping("/guest/{commentId}")
+    public  ResponseEntity<Map<String, Object>> deleteGuestComment(@PathVariable Long commentId,@RequestBody Map<String,String> requestData){
+        try{
+            String password = requestData.get("password");
+            commentService.deleteGuestComment(commentId,password);
+            Map<String,Object> response = new HashMap<>();
+            response.put("success",true);
+            response.put("message","댓글이 성공적으로 삭제되었습니다");
+            return ResponseEntity.ok(response);
+        }catch(Exception e){
+            Map<String,Object> response = new HashMap<>();
+            response.put("success",false);
+            response.put("message",e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 }

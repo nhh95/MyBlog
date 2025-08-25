@@ -13,7 +13,8 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<PostEntity,Long> {
 
     @Query("SELECT p FROM PostEntity p " +
-            "JOIN FETCH p.user u " +
+            "LEFT JOIN FETCH p.user u " +
+            "LEFT JOIN FETCH p.guestUser g " +
             "JOIN FETCH p.category c " +
             "ORDER BY p.createdAt DESC")
     List<PostEntity> findAllWithUserAndCategoryOrderByCreatedAtDesc();
@@ -25,7 +26,8 @@ public interface PostRepository extends JpaRepository<PostEntity,Long> {
     List<Object[]> findPostCommentCounts();
 
     @Query("SELECT p FROM PostEntity p " +
-            "JOIN FETCH p.user u " +
+            "LEFT JOIN FETCH p.user u " +
+            "LEFT JOIN FETCH p.guestUser g " +
             "JOIN FETCH p.category c " +
             "WHERE c.categoryName = :categoryName " +
             "ORDER BY p.id DESC")

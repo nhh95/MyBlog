@@ -2,6 +2,7 @@ package com.blog.myblog.domain.post.entity;
 
 
 import com.blog.myblog.domain.comment.entity.CommentEntity;
+import com.blog.myblog.domain.user.entity.GuestUserEntity;
 import com.blog.myblog.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -46,6 +47,12 @@ public class PostEntity {
     }
 
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "guest_user_id", nullable = true, foreignKey = @ForeignKey(ConstraintMode.CONSTRAINT))
+    private GuestUserEntity guestUser;
+
+    public void setGuestUser(GuestUserEntity guestUserEntity) { this.guestUser = guestUserEntity;}
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
@@ -54,6 +61,8 @@ public class PostEntity {
     // 댓글 컬렉션 매핑 추가: 게시글 삭제 시 댓글도 함께 삭제
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments = new ArrayList<>();
+
+
 
 
     private Long viewCount = 0L;

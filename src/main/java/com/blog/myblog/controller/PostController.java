@@ -40,23 +40,33 @@ public class PostController {
 
         String sessionEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        if(sessionEmail.equals("anonymousUser") ){
+        // 비회원 게시판 (guestfreeboard)인 경우 비회원도 글 작성 가능
+        if(sessionEmail.equals("anonymousUser") && !"guestfreeboard".equals(categoryName)){
             redirectAttributes.addFlashAttribute("msg","글 생성 권한이 없습니다");
             return "redirect:/post/{categoryName}";
         }
 
+        // 비회원인지 회원인지 구분하여 모델에 추가
+        model.addAttribute("isGuest", sessionEmail.equals("anonymousUser"));
+
         return "createpost";
     }
+
 
     //글 생성 수행
     @PostMapping("/post/{categoryName}/createpost")
     public String createProcess (@PathVariable String categoryName,@ModelAttribute PostRequestDTO dto) {
         dto.setCategoryName(categoryName);
-        postService.createOnePost(dto);
 
-        return "redirect:/post/" + categoryName;
-
+        try {
+            postService.createOnePost(dto);
+            return "redirect:/post/" + categoryName;
+        } catch (Exception e) {
+            // 에러 발생 시 처리
+            return "redirect:/post/" + categoryName + "/createpost?error=" + e.getMessage();
+        }
     }
+
 
     //회원 자유게시판 글 목록가져오기
     @GetMapping("/post/{categoryName}")
@@ -112,6 +122,12 @@ public class PostController {
         model.addAttribute("POST",postService.readOnePost(id));
         model.addAttribute("categoryName", categoryName);
 
+        // 현재 로그인 상태 확인
+        String authentication = SecurityContextHolder.getContext().getAuthentication().getName();
+        boolean isGuest = "anonymousUser".equals(authentication);
+        model.addAttribute("isCurrentUserGuest", isGuest);
+
+
         // 카테고리별로 다른 템플릿 반환
         return switch (categoryName) {
             case "portfolioboard" -> "portfoliopost";
@@ -126,29 +142,81 @@ public class PostController {
     @GetMapping("/post/{categoryName}/updatepost/{id}")
     public String updatePage (@PathVariable("categoryName")String categoryName,@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
 
-        if(!postService.isAccess(id)){
-            redirectAttributes.addFlashAttribute("msg","글 수정 권한이 없습니다");
-            return "redirect:/post/" + categoryName;
+        PostResponseDTO post = postService.readOnePost(id);
+
+        // 비회원 게시글인지 확인
+        boolean isGuestPost = post.getUserNickname() != null && post.getUserNickname().contains("(비회원)");
+
+        if (isGuestPost) {
+            // 비회원 게시글인 경우 비밀번호 입력 페이지로
+            model.addAttribute("POST", post);
+            model.addAttribute("categoryName", categoryName);
+            model.addAttribute("postId", id);
+            return "guestpasswordverify";
+        } else {
+            // 회원 게시글인 경우 기존 로직
+            if(!postService.isAccess(id)){
+                redirectAttributes.addFlashAttribute("msg","글 수정 권한이 없습니다");
+                return "redirect:/post/" + categoryName;
+            }
+
+            model.addAttribute("POST", post);
+            model.addAttribute("categoryName", categoryName);
+            return "updatepost";
         }
-
-        model.addAttribute("POST",postService.readOnePost(id));
-        model.addAttribute("categoryName", categoryName);
-
-        return "updatepost";
-
     }
+
+
+    // 비회원 게시글 비밀번호 확인 후 수정 페이지
+    @PostMapping("/post/{categoryName}/updatepost/{id}/verify")
+    public String verifyGuestPassword(@PathVariable("categoryName")String categoryName,
+                                      @PathVariable("id") Long id,
+                                      @RequestParam("password") String password,
+                                      Model model,
+                                      RedirectAttributes redirectAttributes) {
+
+        if (postService.isGuestAccess(id, password)) {
+            PostResponseDTO post = postService.readOnePost(id);
+            model.addAttribute("POST", post);
+            model.addAttribute("categoryName", categoryName);
+
+            return "updatepost";
+        } else {
+            redirectAttributes.addFlashAttribute("msg", "비밀번호가 일치하지 않습니다.");
+            return "redirect:/post/" + categoryName + "/" + id;
+        }
+    }
+
 
     //글 수정 수행
     @PostMapping("/post/{categoryName}/updatepost/{id}")
-    public String updateProcess(@PathVariable("categoryName")String categoryName,@PathVariable("id") Long id,PostRequestDTO dto){
+    public String updateProcess(@PathVariable("categoryName")String categoryName,
+                                @PathVariable("id") Long id,
+                                PostRequestDTO dto,
+                                // verificationPassword 파라미터 제거
+                                RedirectAttributes redirectAttributes){
 
-        if(!postService.isAccess(id)){
-            return "redirect:/post/" + categoryName + "/" + id;
+        // 비회원 게시글인지 확인
+        PostResponseDTO post = postService.readOnePost(id);
+        boolean isGuestPost = post.getUserNickname() != null && post.getUserNickname().contains("(비회원)");
+
+        if (!isGuestPost) {
+            // 회원 게시글인 경우 기존 권한 확인
+            if(!postService.isAccess(id)){
+                redirectAttributes.addFlashAttribute("msg","글 수정 권한이 없습니다");
+                return "redirect:/post/" + categoryName + "/" + id;
+            }
         }
 
-        postService.updateOnePost(id, dto);
-        return "redirect:/post/" + categoryName + "/" + id;
+        try {
+            postService.updateOnePost(id, dto);
+            return "redirect:/post/" + categoryName + "/" + id;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("msg", e.getMessage());
+            return "redirect:/post/" + categoryName + "/" + id;
+        }
     }
+
 
 
 
@@ -156,13 +224,52 @@ public class PostController {
     @PostMapping("/post/{categoryName}/deletePost/{id}")
     public String deleteProcess(@PathVariable("categoryName")String categoryName,@PathVariable("id") Long id,RedirectAttributes redirectAttributes){
 
-        if(!postService.isAccess(id)){
-            redirectAttributes.addFlashAttribute("msg","글 삭제 권한이 없습니다");
+        PostResponseDTO post = postService.readOnePost(id);
+        boolean isGuestPost = post.getUserNickname() != null && post.getUserNickname().contains("(비회원)");
+
+        if (isGuestPost) {
+            // 비회원 게시글인 경우 비밀번호 확인 페이지로 리다이렉트
+            redirectAttributes.addFlashAttribute("deletePostId", id);
+            redirectAttributes.addFlashAttribute("categoryName", categoryName);
+            return "redirect:/post/" + categoryName + "/" + id + "/delete-verify";
+        } else {
+            // 회원 게시글인 경우 기존 로직
+            if(!postService.isAccess(id)){
+                redirectAttributes.addFlashAttribute("msg","글 삭제 권한이 없습니다");
+                return "redirect:/post/" + categoryName;
+            }
+
+            postService.deleteOnePost(id);
             return "redirect:/post/" + categoryName;
         }
+    }
 
-        postService.deleteOnePost(id);
-        return "redirect:/post/" + categoryName;
+    // 비회원 게시글 삭제 비밀번호 확인 페이지
+    @GetMapping("/post/{categoryName}/{id}/delete-verify")
+    public String deleteVerifyPage(@PathVariable("categoryName") String categoryName,
+                                   @PathVariable("id") Long id,
+                                   Model model) {
+        PostResponseDTO post = postService.readOnePost(id);
+        model.addAttribute("POST", post);
+        model.addAttribute("categoryName", categoryName);
+        model.addAttribute("postId", id);
+        return "guestpassworddelete";
+    }
+
+    // 비회원 게시글 삭제 수행
+    @PostMapping("/post/{categoryName}/{id}/delete-verify")
+    public String deleteGuestProcess(@PathVariable("categoryName") String categoryName,
+                                     @PathVariable("id") Long id,
+                                     @RequestParam("password") String password,
+                                     RedirectAttributes redirectAttributes) {
+        try {
+            postService.deleteGuestPost(id, password);
+            redirectAttributes.addFlashAttribute("msg", "게시글이 삭제되었습니다.");
+            return "redirect:/post/" + categoryName;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("msg", e.getMessage());
+            return "redirect:/post/" + categoryName + "/" + id;
+        }
     }
 
 

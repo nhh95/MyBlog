@@ -527,12 +527,17 @@ a:hover {
 }
 
 .post-list-title {
-    width: 61%;
+    width: 59%;
 }
 
 .post-list-nickname {
-    width: 8%;
+    width: 10%;
     text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+
+
 }
 
 .post-list-viewcount {
@@ -547,8 +552,8 @@ a:hover {
 
 /* 헤더에도 동일한 너비 적용 */
 .post-list-header th:nth-child(1) { width: 8%; }   /* ID */
-.post-list-header th:nth-child(2) { width: 61%; }  /* 제목 */
-.post-list-header th:nth-child(3) { width: 8%; }  /* 작성자 */
+.post-list-header th:nth-child(2) { width: 59%; }  /* 제목 */
+.post-list-header th:nth-child(3) { width: 10%; }  /* 작성자 */
 .post-list-header th:nth-child(4) { width: 8%; }  /* 조회수 */
 .post-list-header th:nth-child(5) { width: 15%; }  /* 작성일 */
 

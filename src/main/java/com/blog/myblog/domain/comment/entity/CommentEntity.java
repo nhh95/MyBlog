@@ -2,6 +2,7 @@ package com.blog.myblog.domain.comment.entity;
 
 
 import com.blog.myblog.domain.post.entity.PostEntity;
+import com.blog.myblog.domain.user.entity.GuestUserEntity;
 import com.blog.myblog.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -39,6 +40,16 @@ public class CommentEntity {
 
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id",nullable = false)
+    @JoinColumn(name = "user_id",nullable = true)
     private UserEntity user;
+
+    // 비회원 댓글 지원 필드 추가
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "guest_user_id", nullable = true)
+    private GuestUserEntity guestUser;
+
+    @Column
+    private Boolean isGuestComment = false;
+
+
 }
