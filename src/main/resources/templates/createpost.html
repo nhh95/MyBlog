@@ -11,13 +11,26 @@
             <h1>글쓰기</h1>
             <hr>
 
-            <form th:action="@{|/post/createPost/${postRequestDTO.categoryName}|}" th:object="${postRequestDTO}" method="post">
+            <form th:action="@{/post/{categoryName}/createpost(categoryName=${postRequestDTO.categoryName})}"
+                  th:object="${postRequestDTO}" method="post">
               <!-- Spring Security CSRF 사용 시 필요 -->
             <!--  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
 
               <input type="hidden" th:field="*{categoryName}">
 
-             <div>
+                <!-- 비회원인 경우에만 닉네임과 비밀번호 필드 표시 -->
+                <div th:if="${isGuest}">
+                    <div>
+                        <input type="text" th:field="*{guestNickname}" placeholder="닉네임" required maxlength="15"/>
+                    </div>
+                    <div>
+                        <input type="password" th:field="*{guestSecret}" placeholder="비밀번호 (글 수정/삭제 시 필요)" required minlength="6"/>
+                    </div>
+                    <hr>
+                </div>
+
+
+              <div>
                 <input type="text" id="title" th:field="*{title}" minlength="2"  maxlength="100" name="title" placeholder="제목" required/>
               </div>
 
@@ -26,7 +39,9 @@
                   <textarea id="summernote" th:field="*{content}" name="content" required></textarea>
               </div>
 
-              <button type="submit">생성</button>
+
+                <button type="submit" onclick="return validatePostForm()">글 작성</button>
+
             </form>
 
             <script>

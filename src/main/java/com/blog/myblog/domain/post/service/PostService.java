@@ -1,19 +1,22 @@
 package com.blog.myblog.domain.post.service;
 
-import com.blog.myblog.domain.file.service.MinioService;
+import com.blog.myblog.domain.comment.entity.CommentEntity;
+import com.blog.myblog.domain.comment.repository.CommentRepository;
+import com.blog.myblog.domain.file.MinioService;
 import com.blog.myblog.domain.post.dto.PostRequestDTO;
 import com.blog.myblog.domain.post.dto.PostResponseDTO;
 import com.blog.myblog.domain.post.entity.CategoryEntity;
 import com.blog.myblog.domain.post.entity.PostEntity;
 import com.blog.myblog.domain.post.repository.CategoryRepository;
 import com.blog.myblog.domain.post.repository.PostRepository;
+import com.blog.myblog.domain.user.entity.GuestUserEntity;
 import com.blog.myblog.domain.user.entity.UserEntity;
+import com.blog.myblog.domain.user.repository.GuestUserRepository;
 import com.blog.myblog.domain.user.repository.UserRepository;
 
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.RemoveObjectArgs;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,7 +32,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-
+import java.util.stream.Collectors;
 
 
 @Service
@@ -38,7 +41,10 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final CommentRepository commentRepository;
+    private final GuestUserRepository guestUserRepository; // 추가
+    private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(); // 초기화
+
     private final ViewedPostsHolder viewedPostsHolder;
     private final MinioService minioService;
 
@@ -51,6 +57,7 @@ public class PostService {
     @Transactional
     public void createOnePost(PostRequestDTO dto){
 
+
         // 이미지 임시 폴더에서 최종 폴더로 이동 및 경로 업데이트
         String processedContent = savePostImagesAndGetContent(dto.getContent());
 
@@ -59,15 +66,43 @@ public class PostService {
         postEntity.setContent(processedContent);
 
         CategoryEntity category = categoryRepository.findByCategoryName(dto.getCategoryName());
+        if (category == null) {
+
+            throw new RuntimeException("카테고리를 찾을 수 없습니다: " + dto.getCategoryName());
+        }
         postEntity.setCategory(category);
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity userEntity = userRepository.findByEmail(email).orElseThrow();
-        postEntity.setUser(userEntity);
+        String authentication = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("authentication: " + authentication);
 
-        userEntity.addPostEntity(postEntity);
-        userRepository.save(userEntity);
+        // 비회원 글 작성인지 확인
+        if ("anonymousUser".equals(authentication) && dto.getGuestNickname() != null && dto.getGuestSecret() != null) {
+
+            // 비회원 처리
+            GuestUserEntity guestUser = new GuestUserEntity();
+            guestUser.setNickname(dto.getGuestNickname());
+            guestUser.setPassword(bCryptPasswordEncoder.encode(dto.getGuestSecret()));
+
+            GuestUserEntity savedGuestUser = guestUserRepository.save(guestUser);
+
+
+            postEntity.setGuestUser(savedGuestUser);
+            savedGuestUser.addGuestPostEntity(postEntity);
+        } else {
+
+            // 기존 회원 처리
+            UserEntity userEntity = userRepository.findByEmail(authentication).orElseThrow();
+            postEntity.setUser(userEntity);
+            userEntity.addPostEntity(postEntity);
+        }
+
+        // 비회원, 회원 모두 게시글 저장 필요
+
+        PostEntity savedPost = postRepository.save(postEntity);
+
     }
+
+
 
 
 
@@ -90,7 +125,15 @@ public class PostService {
         dto.setId(postEntity.getId());
         dto.setTitle(postEntity.getTitle());
         dto.setContent(postEntity.getContent());
-        dto.setUserNickname(postEntity.getUser().getNickname());
+
+        // 작성자 닉네임 처리 (회원/비회원 구분)
+        if (postEntity.getUser() != null) {
+            dto.setUserNickname(postEntity.getUser().getNickname());
+        } else if (postEntity.getGuestUser() != null) {
+            dto.setUserNickname(postEntity.getGuestUser().getNickname() + " (비회원)");
+        }
+
+
         dto.setCategoryName(postEntity.getCategory().getCategoryName());
         dto.setViewCount(postEntity.getViewCount());
         dto.setCreatedAt(postEntity.getCreatedAt());
@@ -101,36 +144,61 @@ public class PostService {
 
     }
 
-    //게시글 전부 읽기
-    @Transactional
-    public List<PostResponseDTO> readAllPost() {
 
-        List<PostEntity> list = postRepository.findAllWithUserAndCategory();
+    /*게시글 목록 가져오기*/
+    public Page<PostResponseDTO> findAllByCategory(String categoryName, Pageable pageable) {
+        Page<PostEntity> postPage = postRepository.findByCategoryNameOrderByIdDesc(categoryName,pageable);
 
-        List<PostResponseDTO> dtos = new ArrayList<>();
+        // 댓글 개수 조회
+        List<Object[]> commentCounts = postRepository.findPostCommentCounts();
+        Map<Long, Long> commentCountMap = commentCounts.stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
 
-        for(PostEntity postEntity : list) {
+
+        return postPage.map(post ->{
             PostResponseDTO dto = new PostResponseDTO();
 
-            dto.setId(postEntity.getId());
-            dto.setTitle(postEntity.getTitle());
-            dto.setContent(postEntity.getContent());
-            dto.setUserNickname(postEntity.getUser().getNickname());
-            dto.setCategoryName(postEntity.getCategory().getCategoryName());
-            dto.setViewCount(postEntity.getViewCount());
-            dto.setCreatedAt(postEntity.getCreatedAt());
-            dto.setUpdatedAt(postEntity.getUpdatedAt());
+            dto.setId(post.getId());
+            dto.setTitle(post.getTitle());
+            dto.setContent(post.getContent());
 
-            dtos.add(dto);
+            // 작성자 닉네임 처리 (회원/비회원 구분) - 수정된 부분
+            if (post.getUser() != null) {
+                dto.setUserNickname(post.getUser().getNickname());
+            } else if (post.getGuestUser() != null) {
+                dto.setUserNickname(post.getGuestUser().getNickname() + " (비회원)");
+            }
 
-        }
-        return dtos;
+
+            dto.setCategoryName(post.getCategory().getCategoryName());
+            dto.setViewCount(post.getViewCount());
+            dto.setCreatedAt(post.getCreatedAt());
+            dto.setUpdatedAt(post.getUpdatedAt());
+            dto.setFirstImageUrl(extractFirstImageUrl(post.getContent()));
+            dto.setPlainContent(getPlainTextContent(post.getContent()));
+            // 댓글 개수 설정
+            Long commentCount = commentCountMap.getOrDefault(post.getId(), 0L);
+            dto.setCommentCount(commentCount.intValue());
+
+            return dto;
+        });
     }
 
     @Transactional
     public void updateOnePost(Long id,PostRequestDTO dto){
 
         PostEntity postEntity = postRepository.findById(id).orElseThrow();
+
+        // 비회원 게시글인 경우 비밀번호 검증
+        if (postEntity.getGuestUser() != null) {
+            if (dto.getVerificationSecret() == null ||
+                    !bCryptPasswordEncoder.matches(dto.getVerificationSecret(), postEntity.getGuestUser().getPassword())) {
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
+        }
 
         String oldContent = postEntity.getContent();
         String newContent = dto.getContent();
@@ -161,6 +229,30 @@ public class PostService {
         postRepository.delete(postEntity);
     }
 
+    // 비회원 게시글 삭제를 위한 새로운 메소드
+    @Transactional
+    public void deleteGuestPost(Long id, String password) {
+        PostEntity postEntity = postRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("해당 게시글이 존재하지 않습니다. id=" + id));
+
+        // 비회원 게시글인지 확인하고 비밀번호 검증
+        if (postEntity.getGuestUser() != null) {
+            if (password == null || !bCryptPasswordEncoder.matches(password, postEntity.getGuestUser().getPassword())) {
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
+        } else {
+            throw new IllegalArgumentException("비회원 게시글이 아닙니다.");
+        }
+
+        // 이미지 파일 삭제
+        deletePostImages(postEntity.getContent());
+
+        // 데이터베이스에서 게시글 삭제
+        postRepository.delete(postEntity);
+    }
+
+
+
     @Transactional(readOnly = true)
     public Boolean isAccess(Long id) {
         //현재 로그인 되어있는 유저의 Email
@@ -173,21 +265,36 @@ public class PostService {
         if("ROLE_ADMIN".equals(sessionRole)) {
             return true;
         }
+        PostEntity postEntity = postRepository.findById(id).orElseThrow();
 
-        //게시글 id에 대해 본인이 작성했는지 확인
-        String postUserEmail = postRepository.findById(id).orElseThrow().getUser().getEmail();
-        if(sessionEmail.equals((postUserEmail))){
-
-            return true;
-
+        // 비회원 게시글인 경우 - 비밀번호 확인이 필요하므로 별도 처리
+        if (postEntity.getGuestUser() != null) {
+            return false; // 컨트롤러에서 별도 비밀번호 확인 로직 필요
         }
 
-        //나중에 비회원 게시판 만들때  비회원이 글 작성할때 사용한 패스워드를 통해서 인증 가능하게 만들어야될듯
-        //글을 수정과 삭제 할려면 작성시에 입력한 패스워드 입력
+        //게시글 id에 대해 본인이 작성했는지 확인 (회원만)
+        if (postEntity.getUser() != null) {
+            String postUserEmail = postEntity.getUser().getEmail();
+            return sessionEmail.equals(postUserEmail);
+        }
 
         //나머지는 불가
         return false;
     }
+
+
+    // 비회원 게시글 접근 권한 확인 메소드
+    @Transactional(readOnly = true)
+    public Boolean isGuestAccess(Long id, String password) {
+        PostEntity postEntity = postRepository.findById(id).orElseThrow();
+
+        if (postEntity.getGuestUser() != null && password != null) {
+            return bCryptPasswordEncoder.matches(password, postEntity.getGuestUser().getPassword());
+        }
+
+        return false;
+    }
+
 
 
     // ----- 이미지 파일 처리 관련 private 메서드들 -----
@@ -203,6 +310,36 @@ public class PostService {
         }
         return imageUrls;
     }
+
+    // 게시글 내용에서 첫 번째 이미지 URL 추출
+    private String extractFirstImageUrl(String content) {
+        if (content == null || content.isEmpty()) {
+            return null;
+        }
+
+        Pattern pattern = Pattern.compile("<img[^>]*src=[\"']([^\"']*)[\"'][^>]*>");
+        Matcher matcher = pattern.matcher(content);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
+    // HTML 태그를 제거한 순수 텍스트 내용을 반환하는 메서드
+    public String getPlainTextContent(String content) {
+        if (content == null || content.isEmpty()) {
+            return "";
+        }
+
+        // HTML 태그 제거
+        String plainText = content.replaceAll("<[^>]*>", "");
+        // 연속된 공백을 하나로 변환
+        plainText = plainText.replaceAll("\\s+", " ");
+        // 앞뒤 공백 제거
+        return plainText.trim();
+    }
+
 
     // 임시 폴더의 이미지를 최종 폴더로 이동시키고 게시글 내용을 반환
     private String savePostImagesAndGetContent(String content){

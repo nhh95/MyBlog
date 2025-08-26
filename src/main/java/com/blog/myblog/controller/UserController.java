@@ -4,10 +4,8 @@ import com.blog.myblog.domain.user.dto.UserRequestDTO;
 import com.blog.myblog.domain.user.dto.UserResponseDTO;
 import com.blog.myblog.domain.user.service.UserService;
 import jakarta.validation.Valid;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -31,7 +29,7 @@ public class UserController {
 
         model.addAttribute("userRequestDTO",new UserRequestDTO());
 
-        return "join";
+        return "userpage/join";
     }
     //회원가입 수행
     @PostMapping("/user/join")
@@ -40,7 +38,7 @@ public class UserController {
                               RedirectAttributes ra) {
 
         if (bindingResult.hasErrors()) {
-            return "join"; // 검증 실패 시 폼 재표시
+            return "userpage/join"; // 검증 실패 시 폼 재표시
         }
 
         try {
@@ -58,7 +56,7 @@ public class UserController {
     //로그인 페이지
     @GetMapping("/login")
     public String loginPage() {
-        return "login";
+        return "userpage/login";
     }
 
 
@@ -78,7 +76,7 @@ public class UserController {
         requestDTO.setNickname(responseDTO.getNickname());
 
         model.addAttribute("userRequestDTO", requestDTO);
-        return "update";
+        return "userpage/update";
     }
 
 

@@ -20,6 +20,24 @@
           입니다.
         </p>
       </th:block>
+
+      <section class="portfolio-section" th:if="${portfolioPost}">
+          <h2>포트폴리오</h2>
+          <div class="main-portfolio">
+              <h3 th:text="${portfolioPost.title}">제목</h3>
+              <div class="post-meta">
+                  <span>작성자: <span th:text="${portfolioPost.userNickname}">닉네임</span></span>
+                  <span>조회수: <span th:text="${portfolioPost.viewCount}">0</span></span>
+                  <span>작성일: <span th:text="${#temporals.format(portfolioPost.createdAt, 'yyyy-MM-dd')}">날짜</span></span>
+              </div>
+              <!-- 전체 내용 표시 -->
+              <div class="portfolio-content" th:utext="${portfolioPost.content}">
+                  포트폴리오 내용
+              </div>
+          </div>
+      </section>
+
+
     </body>
   </section>
 </html>

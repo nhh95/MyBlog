@@ -84,3 +84,61 @@
             }
         });
     }
+
+    // 글 작성 폼 검증 함수
+    function validatePostForm() {
+        // 제목 검증
+        const title = document.querySelector('input[name="title"]')?.value.trim();
+        if (!title) {
+            alert('제목을 입력해주세요.');
+            return false;
+        }
+
+        // Summernote 내용 검증
+        const content = $('#summernote').summernote('code');
+        const textContent = $('<div>').html(content).text().trim();
+
+        // HTML 태그를 제거한 순수 텍스트가 비어있는지 확인
+        if (!textContent || textContent === '') {
+            alert('내용을 입력해주세요.');
+            $('#summernote').summernote('focus'); // 에디터에 포커스
+            return false;
+        }
+
+        // 내용이 너무 짧은지 확인 (선택사항)
+        if (textContent.length < 1) {
+            alert('내용을 1자 이상 입력해주세요.');
+            $('#summernote').summernote('focus');
+            return false;
+        }
+
+        return true; // 검증 통과
+    }
+
+    // 드롭다운 메뉴 기능
+    document.addEventListener('DOMContentLoaded', function() {
+        const navHeaders = document.querySelectorAll('.nav-section h3');
+
+        navHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                if (window.innerWidth <= 959) {
+                    const nextUl = this.nextElementSibling;
+                    if (nextUl && nextUl.tagName === 'UL') {
+                        this.classList.toggle('active');
+                        nextUl.classList.toggle('active');
+                    }
+                }
+            });
+        });
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 959) {
+                navHeaders.forEach(header => header.classList.remove('active'));
+                document.querySelectorAll('.nav-section ul').forEach(ul => ul.classList.remove('active'));
+            }
+        });
+    });
+
+
+
+

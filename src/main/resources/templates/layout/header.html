@@ -5,13 +5,13 @@
     <header th:fragment="header" class="main-header">
         <a class="header title-logo" th:href="@{/}">여기에 타이틀을 입력</a>
         <div class="util use-top">
-            <div class="search">
+<!--            <div class="search">
                 <input class="searchInput" type="text" name="search" placeholder="Search.." />
-            </div>
+            </div>-->
             <div class="login-logout">
-                <a th:href="@{/login}">login</a>
-                <a th:href="@{/logout}">logout</a>
-                <a th:href="@{/join}">join</a>
+                <a th:href="@{/login}">로그인</a>
+                <a th:href="@{/logout}">로그아웃</a>
+                <a th:href="@{/join}">회원가입</a>
             </div>
         </div>
     </header>

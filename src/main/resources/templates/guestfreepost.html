@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+    <th:block layout:fragment="styles">
+        <link rel="stylesheet" href="/css/commentStyles.css">
+    </th:block>
+    <th:block layout:fragment="script">
+        <script defer th:src="@{/js/comment.js}"></script>
+    </th:block>
+</head>
+
+<body>
+<section layout:fragment="content">
+    <div>
+        <h1>비회원 자유게시판</h1>
+    </div>
+    <div>
+        <article>
+            <h2 th:text="${POST.title}">제목</h2>
+            <div class="meta">
+                <span>작성자: <strong th:text="${POST.userNickname}">작성자</strong></span> |
+                <!--<span>카테고리: <em th:text="${POST.categoryName}">카테고리</em></span> |-->
+                <span>조회수: <span th:text="${POST.viewCount}">0</span></span> |
+                <span>작성일:
+                <span th:text="${#temporals.format(POST.createdAt, 'yyyy-MM-dd HH:mm')}">2025-08-03 12:00</span>
+              </span> |
+                <span th:if="${POST.updatedAt != null}">
+                수정일: <span th:text="${#temporals.format(POST.updatedAt, 'yyyy-MM-dd HH:mm')}">2025-08-04 09:00</span>
+              </span>
+            </div>
+            <hr/>
+            <div class="content" id="post-content"  th:utext="${POST.content}">
+                내용이 여기에 들어갑니다.
+            </div>
+            <hr/>
+        </article>
+        <div class="post-actions">
+            <div class="post-actions-left-buttons">
+                <button type="button" th:onclick="|location.href='@{/post/{categoryName}(categoryName=${POST.categoryName})}'|">
+
+                    목록으로 돌아가기
+                </button>
+            </div>
+            <div class="post-action-right-buttons">
+                <button type="button" th:onclick="|location.href='@{/post/{categoryName}/updatepost/{id}(categoryName=${POST.categoryName}, id=${POST.id})}'|">
+                    수정
+                </button>
+                <form th:action="@{/post/{categoryName}/deletePost/{id}(categoryName=${POST.categoryName}, id=${POST.id})}"
+                      method="post" style="display:inline;">
+                    <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+                </form>
+            </div>
+        </div>
+
+
+    </div>
+    <!-- 댓글 작성 폼 -->
+    <div class="comment-createForm">
+        <h3>댓글 작성</h3>
+
+        <!-- 비회원용 입력 필드 (현재 사용자가 비회원일 때만 표시) -->
+        <div th:if="${isCurrentUserGuest}" style="margin-bottom: 10px;">
+            <input type="text" id="guestNickname" placeholder="닉네임 (최대 20자)" maxlength="20" style="width: 200px; margin-right: 10px;" />
+            <input type="password" id="guestPassword" placeholder="비밀번호 (수정/삭제용)" style="width: 200px;" />
+        </div>
+
+        <textarea class="comment-createTextArea" id="commentContent" placeholder="최대 1000자까지 입력 가능합니다." rows="3" style="width: 100%;" maxlength="1000"></textarea>
+        <div style="text-align: right; margin-top: 5px; font-size: 0.9em; color: #666;">
+            <span id="charCount">0</span> / 1000자
+        </div>
+
+        <input type="hidden" th:value="${POST.id}" id="postId">
+        <input type="hidden" th:value="${#authentication.name}" id="user-email">
+
+        <!-- 현재 사용자가 비회원이면 비회원 댓글 저장, 회원이면 회원 댓글 저장 -->
+        <div class="comment-createButton">
+            <button th:if="${isCurrentUserGuest}" onclick="saveGuestComment()">댓글 저장</button>
+            <button th:unless="${isCurrentUserGuest}" onclick="saveNewComment()">댓글 저장</button>
+        </div>
+    </div>
+
+
+    <!-- 댓글 목록 -->
+    <div>
+        <h3>댓글 목록 (<span id="commentCount">0</span>)</h3>
+        <div id="commentList"></div>
+    </div>
+
+</section>
+
+<script>
+
+
+</script>
+</body>
+</html>
