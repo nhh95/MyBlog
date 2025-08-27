@@ -196,7 +196,7 @@ public class PostController {
     public String updateProcess(@PathVariable("categoryName")String categoryName,
                                 @PathVariable("id") Long id,
                                 PostRequestDTO dto,
-                                // verificationPassword 파라미터 제거
+
                                 RedirectAttributes redirectAttributes){
 
         // 비회원 게시글인지 확인

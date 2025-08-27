@@ -28,17 +28,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
 
-        http.csrf(csrf -> csrf.disable());
+/*        http.csrf(csrf -> csrf.disable());*/
 
 
-/*
-        // CSRF 토큰을 쿠키에 저장하도록 설정
+
         http.csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/logout")
-                .ignoringRequestMatchers("/")
         );
-*/
 
 
         //접근경로별 인가 설정

@@ -6,7 +6,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!--jquery추가-->
+    <!--csrf-->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+      <!--jquery추가-->
     <link rel="stylesheet" th:href="@{/webjars/jquery-ui/1.14.1/jquery-ui.min.css}">
     <script th:src="@{/webjars/jquery/3.7.1/jquery.min.js}"></script>
     <script th:src="@{/webjars/jquery-ui/1.14.1/jquery-ui.min.js}"></script>

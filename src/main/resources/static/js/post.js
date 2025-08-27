@@ -1,5 +1,19 @@
 
-	$('#summernote').summernote({
+$(function(){
+    var token  = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+
+    if (token && header) {
+        $.ajaxSetup({
+            beforeSend: function(xhr){ xhr.setRequestHeader(header, token); }
+        });
+    }
+});
+
+
+
+
+$('#summernote').summernote({
 			  toolbar: [
     			    // [groupName, [list of button]]
     			    ['fontname', ['fontname']],
