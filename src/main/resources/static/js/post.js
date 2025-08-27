@@ -1,5 +1,4 @@
 
-
 	$('#summernote').summernote({
 			  toolbar: [
     			    // [groupName, [list of button]]
@@ -77,7 +76,6 @@
             type: "POST",
             url: "/deleteSummernoteImageFile", // 이미지 삭제를 처리할 서버 엔드포인트
             success: function(response) {
-                console.log("Image deleted successfully:", response);
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.error("Image deletion failed:", textStatus, errorThrown);

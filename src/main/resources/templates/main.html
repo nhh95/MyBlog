@@ -1,34 +1,52 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.w3.org/1999/xhtml"
       layout:decorate="~{layout/layout}">
   <head>
+      <th:block layout:fragment="script">
+          <script th:inline="javascript">
+              // msg가 존재할 때만 처리하도록 안전하게 변경
+              /*<![CDATA[*/
+              try {
+                  const message = /*[[${msg}]]*/ null;
+                  if (message && message.trim() !== '') {
+                      alert(message);
+                  }
+              } catch (e) {
+                  console.log('Message processing error:', e);
+              }
+              /*]]>*/
+          </script>
+      </th:block>
 
   </head>
   <section layout:fragment="content">
-    <body>
+
       <title>메인 페이지</title>
-      <h1 class="main-page-title">main page</h1>
-      <th:block th:with="
-          isAuth=${#authorization.expression('isAuthenticated()')},
-          isAdmin=${#authorization.expression('hasRole(''ADMIN'')')}">
-        <p>
+      <h1 class="main-page-title">Main Page</h1>
+      <p>
           안녕하세요,
-          <span th:text="${isAuth ? #authentication.name : '방문자님'}">방문자님</span>
+          <span sec:authorize="isAuthenticated()">
+              <span sec:authentication="name">사용자</span>님
+          </span>
+          <span sec:authorize="!isAuthenticated()">방문자님</span>
           당신의 권한은
-          <span th:text="${isAuth ? (isAdmin ? '어드민' : '유저') : '비회원'}">비회원</span>
+          <span sec:authorize="hasRole('ADMIN')">어드민</span>
+          <span sec:authorize="hasRole('USER') and !hasRole('ADMIN')">유저</span>
+          <span sec:authorize="!isAuthenticated()">비회원</span>
           입니다.
-        </p>
-      </th:block>
+      </p>
+
+
 
       <section class="portfolio-section" th:if="${portfolioPost}">
           <h2>포트폴리오</h2>
           <div class="main-portfolio">
               <h3 th:text="${portfolioPost.title}">제목</h3>
               <div class="post-meta">
-                  <span>작성자: <span th:text="${portfolioPost.userNickname}">닉네임</span></span>
-                  <span>조회수: <span th:text="${portfolioPost.viewCount}">0</span></span>
-                  <span>작성일: <span th:text="${#temporals.format(portfolioPost.createdAt, 'yyyy-MM-dd')}">날짜</span></span>
+              <!--    <span>작성자: <span th:text="${portfolioPost.userNickname}">닉네임</span></span>-->
+<!--                  <span>조회수: <span th:text="${portfolioPost.viewCount}">0</span></span>
+                  <span>작성일: <span th:text="${#temporals.format(portfolioPost.createdAt, 'yyyy-MM-dd')}">날짜</span></span>-->
               </div>
               <!-- 전체 내용 표시 -->
               <div class="portfolio-content" th:utext="${portfolioPost.content}">
@@ -38,6 +56,6 @@
       </section>
 
 
-    </body>
+
   </section>
 </html>

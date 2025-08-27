@@ -28,6 +28,9 @@
     width: 100%;
     min-height: 80px;
     margin-bottom: 5px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
     resize: none;
 }
 

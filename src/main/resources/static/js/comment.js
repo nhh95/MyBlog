@@ -1,5 +1,22 @@
 // 페이지 로드 시 댓글 목록 불러오기
 $(document).ready(function() {
+/*    // CSRF 토큰 설정
+    var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+
+    $.ajaxSetup({
+        beforeSend: function (xhr) {
+            const tokenEl = document.querySelector("meta[name='_csrf']");
+            const headerEl = document.querySelector("meta[name='_csrf_header']");
+            if (tokenEl && headerEl) {
+                xhr.setRequestHeader(headerEl.getAttribute("content"), tokenEl.getAttribute("content"));
+            } else {
+                // 메타 없으면 콘솔에 경고
+                console.warn("CSRF 메타 태그가 없습니다. (헤더 미설정)");
+            }
+        }
+    });*/
+
     loadComments();
     loadCommentCount();
 });
@@ -70,9 +87,16 @@ function saveGuestComment() {
         isGuest: true
     };
 
+ /*   // CSRF 토큰 가져오기
+    const token = document.querySelector("meta[name='_csrf']").getAttribute("content");
+    const header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+*/
+
     fetch('/api/comments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',
+           /* [header]: token  // CSRF 헤더 추가*/
+        },
         body: JSON.stringify(requestData)
     })
         .then(response => response.json())
@@ -117,8 +141,7 @@ function displayComments(comments) {
     const commentList = document.getElementById('commentList');
     const currentUserEmail = document.getElementById('user-email').value;
 
-    console.log('현재 사용자 이메일:', currentUserEmail); // 디버깅용
-    console.log('댓글 목록:', comments); // 디버깅용
+
 
     if (comments.length === 0) {
         commentList.innerHTML = '<p>등록된 댓글이 없습니다.</p>';
@@ -149,7 +172,7 @@ function displayComments(comments) {
             }
         }
 
-        console.log(`댓글 ID: ${comment.id}, 댓글 작성자: ${comment.userNickname}, 비회원 댓글: ${comment.isGuestComment}`);
+
 
 
         let editFormHtml = '';
@@ -323,9 +346,18 @@ function updateGuestComment(commentId) {
         isGuest: true
     };
 
+/*
+    // CSRF 토큰 가져오기
+    const token = document.querySelector("meta[name='_csrf']").getAttribute("content");
+    const header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+*/
+
+
     fetch(`/api/comments/${commentId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',
+      /*      [header]: token  // CSRF 헤더 추가*/
+        },
         body: JSON.stringify(requestData)
     })
         .then(response => response.json())
@@ -353,9 +385,18 @@ function deleteGuestComment(commentId) {
     const password = prompt('댓글 비밀번호를 입력하세요:');
     if (!password) return;
 
+/*
+    // CSRF 토큰 가져오기
+    const token = document.querySelector("meta[name='_csrf']").getAttribute("content");
+    const header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+*/
+
+
     fetch(`/api/comments/guest/${commentId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',
+         /*   [header]: token  // CSRF 헤더 추가*/
+        },
         body: JSON.stringify({ password: password })
     })
         .then(response => response.json())

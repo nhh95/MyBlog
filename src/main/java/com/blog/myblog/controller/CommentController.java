@@ -56,7 +56,7 @@ public class CommentController {
     public ResponseEntity<Map<String, Object>> updateComment(
             @PathVariable Long commentId,
             @RequestBody CommentRequestDTO requestDTO,
-            @RequestParam(required = false) Authentication authentication) {
+            Authentication authentication) {
         try {
             String userEmail = (authentication != null) ? authentication.getName() : null;
             CommentResponseDTO comment = commentService.updateComment(commentId, requestDTO, userEmail);
