@@ -183,7 +183,10 @@ public class PostController {
             return "updatepost";
         } else {
             redirectAttributes.addFlashAttribute("msg", "비밀번호가 일치하지 않습니다.");
-            return "redirect:/post/" + categoryName + "/" + id;
+            redirectAttributes.addAttribute("categoryName", categoryName);
+            redirectAttributes.addAttribute("postId", id);
+            return "redirect:/post/" + categoryName + "/updatepost/" + id;
+
         }
     }
 
@@ -193,7 +196,7 @@ public class PostController {
     public String updateProcess(@PathVariable("categoryName")String categoryName,
                                 @PathVariable("id") Long id,
                                 PostRequestDTO dto,
-                                // verificationPassword 파라미터 제거
+
                                 RedirectAttributes redirectAttributes){
 
         // 비회원 게시글인지 확인
@@ -262,15 +265,22 @@ public class PostController {
                                      @PathVariable("id") Long id,
                                      @RequestParam("password") String password,
                                      RedirectAttributes redirectAttributes) {
-        try {
-            postService.deleteGuestPost(id, password);
-            redirectAttributes.addFlashAttribute("msg", "게시글이 삭제되었습니다.");
-            return "redirect:/post/" + categoryName;
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("msg", e.getMessage());
-            return "redirect:/post/" + categoryName + "/" + id;
+
+            if(postService.isGuestAccess(id,password)){
+
+                postService.deleteGuestPost(id, password);
+                redirectAttributes.addFlashAttribute("msg", "게시글이 삭제되었습니다.");
+                return "redirect:/post/" + categoryName;
+
+            }else {
+
+                redirectAttributes.addFlashAttribute("msg","비밀번호가 일치하지 않습니다.");
+                return "redirect:/post/" + categoryName + "/" + id + "/delete-verify";
+            }
+
+
         }
-    }
+
 
 
 }

@@ -1,5 +1,22 @@
+
+$(function(){
+    var token  = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+
+    if (token && header) {
+        $.ajaxSetup({
+            beforeSend: function(xhr){ xhr.setRequestHeader(header, token); }
+        });
+    }
+});
+
+
+
+
+
 // 페이지 로드 시 댓글 목록 불러오기
 $(document).ready(function() {
+
     loadComments();
     loadCommentCount();
 });
@@ -46,55 +63,48 @@ function saveNewComment() {
 function saveGuestComment() {
     const nickname = document.getElementById('guestNickname').value.trim();
     const password = document.getElementById('guestPassword').value.trim();
-    const content = document.getElementById('commentContent').value.trim();
-    const postId = document.getElementById('postId').value;
+    const content  = document.getElementById('commentContent').value.trim();
+    const postId   = parseInt(document.getElementById('postId').value, 10);
 
-    if (!nickname) {
-        alert('닉네임을 입력해주세요.');
-        return;
-    }
-    if (!password) {
-        alert('비밀번호를 입력해주세요.');
-        return;
-    }
-    if (!content) {
-        alert('댓글 내용을 입력해주세요.');
-        return;
-    }
+    if (!nickname) { alert('닉네임을 입력해주세요.'); return; }
+    if (!password) { alert('비밀번호를 입력해주세요.'); return; }
+    if (!content)  { alert('댓글 내용을 입력해주세요.'); return; }
 
     const requestData = {
         commentContent: content,
-        postId: parseInt(postId),
+        postId: postId,
         guestNickname: nickname,
         guestPassword: password,
         isGuest: true
     };
 
-    fetch('/api/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestData)
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
+    $.ajax({
+        url: '/api/comments',
+        type: 'POST',                 // 또는 method: 'POST'
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',             // 응답을 JSON으로 파싱
+        data: JSON.stringify(requestData),
+        success: function (data) {
+            if (data && data.success) {
                 alert('댓글이 작성되었습니다.');
                 // 폼 초기화
-                document.getElementById('guestNickname').value = '';
-                document.getElementById('guestPassword').value = '';
-                document.getElementById('commentContent').value = '';
-                // 댓글 목록 새로고침
+                $('#guestNickname').val('');
+                $('#guestPassword').val('');
+                $('#commentContent').val('');
+                // 목록/개수 새로고침
                 loadComments();
+                loadCommentCount && loadCommentCount();
             } else {
-                alert('댓글 작성 실패: ' + data.message);
+                alert('댓글 작성 실패: ' + (data?.message ?? '알 수 없는 오류'));
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('댓글 작성 중 오류가 발생했습니다.');
-        });
+        },
+        error: function (xhr, status, error) {
+            const msg = xhr.responseText || error || '네트워크 오류';
+            alert('댓글 작성 중 오류가 발생했습니다: ' + msg);
+            console.error('saveGuestComment error:', status, error, xhr);
+        }
+    });
 }
-
 
 // 댓글 목록 조회
 function loadComments() {
@@ -117,8 +127,7 @@ function displayComments(comments) {
     const commentList = document.getElementById('commentList');
     const currentUserEmail = document.getElementById('user-email').value;
 
-    console.log('현재 사용자 이메일:', currentUserEmail); // 디버깅용
-    console.log('댓글 목록:', comments); // 디버깅용
+
 
     if (comments.length === 0) {
         commentList.innerHTML = '<p>등록된 댓글이 없습니다.</p>';
@@ -149,7 +158,7 @@ function displayComments(comments) {
             }
         }
 
-        console.log(`댓글 ID: ${comment.id}, 댓글 작성자: ${comment.userNickname}, 비회원 댓글: ${comment.isGuestComment}`);
+
 
 
         let editFormHtml = '';
@@ -302,76 +311,73 @@ document.getElementById('commentContent').addEventListener('input', function() {
 
 
 
-// 비회원 댓글 수정 완료
+// 비회원 댓글 수정
 function updateGuestComment(commentId) {
-    const editContent = document.getElementById(`edit-content-${commentId}`).value.trim();
-    const password = document.getElementById(`edit-password-${commentId}`).value.trim();
+    const editContent = $('#edit-content-' + commentId).val().trim();
+    const password    = $('#edit-password-' + commentId).val().trim();
+    if (!password)   { alert('비밀번호를 입력해주세요.'); return; }
+    if (!editContent){ alert('댓글 내용을 입력해주세요.'); return; }
 
-    if (!password) {
-        alert('비밀번호를 입력해주세요.');
-        return;
-    }
-
-    if (!editContent) {
-        alert('댓글 내용을 입력해주세요.');
-        return;
-    }
-
-    const requestData = {
-        commentContent: editContent,
-        guestPassword: password,
-        isGuest: true
-    };
-
-    fetch(`/api/comments/${commentId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestData)
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
+    $.ajax({
+        url: `/api/comments/${commentId}`,
+        type: 'PUT',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        data: JSON.stringify({ commentContent: editContent, guestPassword: password, isGuest: true }),
+        success: function (data) {
+            if (data?.success) {
                 alert('댓글이 수정되었습니다.');
                 loadComments();
-                loadCommentCount();
+                loadCommentCount && loadCommentCount();
             } else {
-                alert('수정 실패: ' + data.message);
+                alert('수정 실패: ' + (data?.message ?? '알 수 없는 오류'));
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('댓글 수정 중 오류가 발생했습니다.');
-        });
+        },
+        error: function (xhr, s, e) {
+            try {
+                const errorData = JSON.parse(xhr.responseText);
+                alert('수정 실패: ' + (errorData.message || e));
+            } catch (parseError) {
+                alert('수정 실패: ' + (xhr.responseText || e));
+            }
+        }
+
+    });
 }
+
 
 // 비회원 댓글 삭제 (확인창과 비밀번호 입력)
 function deleteGuestComment(commentId) {
-    if (!confirm('정말로 댓글을 삭제하시겠습니까?')) {
-        return;
-    }
+    if (!confirm('정말로 댓글을 삭제하시겠습니까?')) return;
 
     const password = prompt('댓글 비밀번호를 입력하세요:');
     if (!password) return;
 
-    fetch(`/api/comments/guest/${commentId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: password })
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
+    $.ajax({
+        url: `/api/comments/guest/${commentId}`,
+        type: 'DELETE',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        data: JSON.stringify({ password: password }),
+        success: function (data) {
+            if (data && data.success) {
                 alert('댓글이 삭제되었습니다.');
                 loadComments();
-                loadCommentCount();
+                if (typeof loadCommentCount === 'function') loadCommentCount();
             } else {
-                alert('삭제 실패: ' + data.message);
+                alert('삭제 실패: ' + (data?.message ?? '알 수 없는 오류'));
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('댓글 삭제 중 오류가 발생했습니다.');
-        });
+        },
+        error: function (xhr, status, error) {
+            try {
+                const errorData = JSON.parse(xhr.responseText);
+                alert('삭제 실패: ' + (errorData.message || error));
+            } catch (parseError) {
+                alert('삭제 실패: ' + (xhr.responseText || error || '네트워크 오류'));
+            }
+            console.error('deleteGuestComment error:', status, error, xhr);
+        }
+    });
 }
 
 

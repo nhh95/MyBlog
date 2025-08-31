@@ -16,6 +16,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.List;
 
@@ -45,8 +46,11 @@ public class CommentService {
         PostEntity post = postRepository.findById(requestDTO.getPostId())
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을수없습니다"));
 
+        String escapedContent = HtmlUtils.htmlEscape(requestDTO.getCommentContent());
+
+
         CommentEntity comment = new CommentEntity();
-        comment.setCommentContent(requestDTO.getCommentContent());
+        comment.setCommentContent(escapedContent);
         comment.setUser(user);
         comment.setPost(post);
         comment.setIsGuestComment(false);
@@ -66,7 +70,9 @@ public class CommentService {
         GuestUserEntity savedGuestUser = GuestUserRepository.save(guestUser);
 
         CommentEntity comment = new CommentEntity();
-        comment.setCommentContent(requestDTO.getCommentContent());
+
+        String escapedContent = HtmlUtils.htmlEscape(requestDTO.getCommentContent());
+        comment.setCommentContent(escapedContent);
         comment.setGuestUser(savedGuestUser);
         comment.setPost(post);
         comment.setIsGuestComment(true);
@@ -106,7 +112,8 @@ public class CommentService {
             throw new RuntimeException("댓글 수정 권한이 없습니다.");
         }
 
-        comment.setCommentContent(requestDTO.getCommentContent());
+        String escapedContent = HtmlUtils.htmlEscape(requestDTO.getCommentContent());
+        comment.setCommentContent(escapedContent);
         CommentEntity updatedComment = commentRepository.save(comment);
         return CommentResponseDTO.fromEntity(updatedComment);
 
@@ -120,7 +127,8 @@ public class CommentService {
             throw new RuntimeException("비밀번호가 일치하지 않습니다");
         }
 
-        comment.setCommentContent(requestDTO.getCommentContent());
+        String escapedContent = HtmlUtils.htmlEscape(requestDTO.getCommentContent());
+        comment.setCommentContent(escapedContent);
         CommentEntity updatedComment = commentRepository.save(comment);
         return CommentResponseDTO.fromEntity(updatedComment);
     }

@@ -4,6 +4,12 @@
       layout:decorate="~{layout/layout}">
 
 <head>
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+            const message = /*[[${msg}]]*/ "";
+            if (message) alert(message);
+        </script>
+    </th:block>
     <th:block layout:fragment="styles">
         <link rel="stylesheet" href="/css/commentStyles.css">
     </th:block>
@@ -22,7 +28,7 @@
             <h2 th:text="${POST.title}">제목</h2>
             <div class="meta">
                 <span>작성자: <strong th:text="${POST.userNickname}">작성자</strong></span> |
-                <!--<span>카테고리: <em th:text="${POST.categoryName}">카테고리</em></span> |-->
+
                 <span>조회수: <span th:text="${POST.viewCount}">0</span></span> |
                 <span>작성일:
                 <span th:text="${#temporals.format(POST.createdAt, 'yyyy-MM-dd HH:mm')}">2025-08-03 12:00</span>

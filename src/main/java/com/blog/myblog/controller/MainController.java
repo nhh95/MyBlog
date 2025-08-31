@@ -26,6 +26,9 @@ public class MainController {
         if (!portfolioPosts.isEmpty()) {
             PostResponseDTO portfolioPost = portfolioPosts.getContent().get(0);
             model.addAttribute("portfolioPost", portfolioPost);
+        } else {
+            // 포트폴리오 게시물이 없을 경우를 위한 처리
+            model.addAttribute("portfolioPost", null);
         }
 
         return "main";

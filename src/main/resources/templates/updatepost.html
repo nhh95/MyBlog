@@ -5,6 +5,13 @@
 
   <head>
 
+
+      <th:block layout:fragment="script">
+          <script th:inline="javascript">
+              const message = /*[[${msg}]]*/ "";
+              if (message) alert(message);
+          </script>
+      </th:block>
   </head>
 
   <section layout:fragment="content">
@@ -13,6 +20,9 @@
       <hr/>
       <form th:action="@{/post/{categoryName}/updatepost/{id}(categoryName=${POST.categoryName}, id=${POST.id})}"
             th:object="${POST}" method="post">
+
+
+
 
           <!-- 비회원 게시글인 경우에만 인증키 입력 필드 표시 -->
           <div th:if="${POST.userNickname != null and #strings.contains(POST.userNickname, '(비회원)')}">
