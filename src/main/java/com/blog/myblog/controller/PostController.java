@@ -39,12 +39,19 @@ public class PostController {
         model.addAttribute("categoryName", categoryName);
 
         String sessionEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        String sessionRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().iterator().next().getAuthority();
 
-        // 비회원 게시판 (guestfreeboard)인 경우 비회원도 글 작성 가능
+
         if(sessionEmail.equals("anonymousUser") && !"guestfreeboard".equals(categoryName)){
             redirectAttributes.addFlashAttribute("msg","글 생성 권한이 없습니다");
             return "redirect:/post/{categoryName}";
         }
+
+        if("ROLE_USER".equals(sessionRole) && ("portfolioboard".equals(categoryName) || "projectboard".equals(categoryName))){
+            redirectAttributes.addFlashAttribute("msg","글 생성 권한이 없습니다");
+            return "redirect:/post/" + categoryName;
+        }
+
 
         // 비회원인지 회원인지 구분하여 모델에 추가
         model.addAttribute("isGuest", sessionEmail.equals("anonymousUser"));
