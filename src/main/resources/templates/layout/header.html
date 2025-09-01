@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+
+    <header th:fragment="header" class="main-header">
+        <a class="header title-logo" th:href="@{/}">NamBlog</a>
+        <div class="util use-top">
+<!--            <div class="search">
+                <input class="searchInput" type="text" name="search" placeholder="Search.." />
+            </div>-->
+            <div class="login-logout">
+
+                <!--비회원일경우-->
+                <a th:href="@{/login}" sec:authorize="!isAuthenticated()">로그인</a>
+                <a th:href="@{/join}" sec:authorize="!isAuthenticated()">회원가입</a>
+
+                <!--회원일경우-->
+                <span sec:authorize="isAuthenticated()" class="user-info">
+                    안녕하세요, <span sec:authentication="name"></span>님
+                    <a th:href="@{/user/update/{email}(email=${#authentication.name})}" sec:authorize="isAuthenticated()">정보수정</a>
+                    <span sec:authorize="isAuthenticated()">
+                        <form th:action="@{/logout}" method="post">
+
+                            <button class="logout-btn" type="submit">로그아웃</button>
+                        </form>
+                    </span>
+
+                </span>
+            </div>
+        </div>
+    </header>
+
+</html>

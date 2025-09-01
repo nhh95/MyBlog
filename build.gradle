@@ -25,9 +25,12 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+
 
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
@@ -35,8 +38,20 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+
+
+	implementation 'org.webjars:jquery:3.7.1'
+	implementation 'org.webjars:jquery-ui:1.14.1'
+
+	implementation 'io.minio:minio:8.5.17'
+
+	implementation 'commons-io:commons-io:2.6'
+	implementation 'com.google.code.gson:gson:2.8.6'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+
 
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	//runtimeOnly 'com.h2database:h2'

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+<!--
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+-->
+
+    <th:block layout:fragment="styles">
+        <link rel="stylesheet" href="/css/userPageStyles.css">
+    </th:block>
+</head>
+
+    <section layout:fragment="content">
+        <div class="auth-container">
+            <h1>회원 가입</h1>
+            <hr>
+
+            <form th:action="@{/user/join}" th:object="${userRequestDTO}" method="post" class="auth-form">
+
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" th:field="*{email}" placeholder="email" required />
+                    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="errormessage"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" th:field="*{password}" placeholder="password" required minlength="8" />
+                    <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="errormessage"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nickname">닉네임</label>
+                    <input type="text" id="nickname" th:field="*{nickname}" placeholder="nickname" required />
+                    <div th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="errormessage"></div>
+                </div>
+                <div th:if="${errorMessage}" class="error-alert">
+                    <span th:text="${errorMessage}"></span>
+                </div>
+
+                <button type="submit" class="auth-button">가입하기</button>
+            </form>
+        </div>
+    </section>
+
+</html>

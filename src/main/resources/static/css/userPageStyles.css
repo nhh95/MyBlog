@@ -1,0 +1,110 @@
+.auth-container {
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 0 var(--space-4);
+}
+
+.auth-container h1 {
+    text-align: center;
+    margin-bottom: var(--space-5);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--fg);
+}
+
+.auth-container hr {
+    border: none;
+    height: 1px;
+    background: var(--line);
+    margin-bottom: var(--space-6);
+}
+
+/* 폼 스타일 */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--fg);
+    font-size: 14px;
+}
+
+.form-group input {
+    padding: 12px var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 15px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.form-group input::placeholder {
+    color: var(--muted);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+/* 에러 메시지 */
+.error-message {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: var(--space-1);
+}
+
+.error-alert {
+    background: color-mix(in srgb, #dc3545 10%, transparent);
+    color: #dc3545;
+    padding: var(--space-3);
+    border-radius: var(--radius);
+    border: 1px solid color-mix(in srgb, #dc3545 30%, transparent);
+    text-align: center;
+    font-size: 14px;
+}
+
+/* 버튼 */
+.auth-button {
+    padding: 14px;
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: filter .15s ease, transform .02s ease;
+    margin-top: var(--space-3);
+}
+
+.auth-button:hover {
+    filter: brightness(1.05);
+}
+
+.auth-button:active {
+    transform: translateY(1px);
+}
+
+/* 반응형 */
+@media (max-width: 480px) {
+    .auth-container {
+        max-width: none;
+        margin: var(--space-5) var(--space-4);
+    }
+
+    .auth-container h1 {
+        font-size: 24px;
+    }
+}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+  <head>
+
+
+      <th:block layout:fragment="script">
+          <script th:inline="javascript">
+              const message = /*[[${msg}]]*/ "";
+              if (message) alert(message);
+          </script>
+      </th:block>
+  </head>
+
+  <section layout:fragment="content">
+    <body>
+      <h1>게시글 수정</h1>
+      <hr/>
+      <form th:action="@{/post/{categoryName}/updatepost/{id}(categoryName=${POST.categoryName}, id=${POST.id})}"
+            th:object="${POST}" method="post">
+
+
+
+
+          <!-- 비회원 게시글인 경우에만 인증키 입력 필드 표시 -->
+          <div th:if="${POST.userNickname != null and #strings.contains(POST.userNickname, '(비회원)')}">
+              <div class="auth-section">
+                  <input type="password" name="verificationSecret" id="verificationSecret" placeholder="비밀번호를 다시 입력하세요" required minlength="6" />
+              </div>
+          </div>
+          <hr>
+
+        <div>
+          <input type="text" id="title" th:field="*{title}"
+                 minlength="2"  maxlength="100" name="title" placeholder="제목" required/>
+        </div>
+        <div>
+          <!--summernote-->
+          <textarea id="summernote" th:field="*{content}"
+                    name="content" required></textarea>
+        </div>
+        <div style="margin-top:1em;">
+          <button type="submit">저장</button>
+          <button type="button" th:onclick="|location.href='@{/post/{categoryName}(categoryName=${POST.categoryName})}'|">
+          취소
+          </button>
+        </div>
+      </form>
+      <script>
+
+      </script>
+    </body>
+  </section>
+</html>

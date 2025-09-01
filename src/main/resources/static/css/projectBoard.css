@@ -1,0 +1,282 @@
+.blog-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.blog-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.blog-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--fg);
+    margin-bottom: 10px;
+}
+
+.blog-header p {
+    color: var(--muted);
+    font-size: 1.1rem;
+}
+
+/* 리스트 레이아웃으로 변경 */
+.posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.post-item {
+    display: flex;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+}
+
+.post-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,.12);
+}
+
+.post-item-image {
+    flex-shrink: 0;
+    width: 400px;
+    height: 300px;
+    position: relative;
+    overflow: hidden;
+}
+
+.post-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.post-item:hover .post-thumbnail {
+    transform: scale(1.05);
+}
+
+.post-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 80%, #6366f1) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-fg);
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.post-item-content {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.post-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+}
+
+.post-author {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.post-author::before {
+    content: "👤";
+    font-size: 0.8em;
+}
+
+.post-date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.post-date::before {
+    content: "📅";
+    font-size: 0.8em;
+}
+
+.post-views {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.post-views::before {
+    content: "👁";
+    font-size: 0.8em;
+}
+
+.comment-count {
+    color: var(--accent);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.comment-count::before {
+    content: "💬";
+    font-size: 0.8em;
+}
+
+.post-item-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    line-height: 1.3;
+}
+
+.post-item-title a {
+    color: var(--fg);
+    text-decoration: none;
+    display: block;
+}
+
+.post-item-title a:hover {
+    color: var(--accent);
+}
+
+.post-item-excerpt {
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+.post-item-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+}
+
+.read-more {
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.read-more:hover {
+    background-color: color-mix(in srgb, var(--accent) 10%, transparent);
+    text-decoration: none;
+}
+
+.no-posts {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+}
+
+.no-posts-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.create-post-section {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.create-post-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.create-post-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+}
+
+.create-post-btn::before {
+    content: "✏️";
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .blog-header h1 {
+        font-size: 2rem;
+    }
+
+    .posts-list {
+        gap: 16px;
+    }
+
+    .post-item {
+        flex-direction: column;
+    }
+
+    .post-item-image {
+        width: 100%;
+        height: 180px;
+    }
+
+    .post-item-content {
+        padding: 20px;
+    }
+
+    .post-meta {
+        gap: 8px;
+        font-size: 0.8rem;
+    }
+
+    .post-item-title {
+        font-size: 1.2rem;
+    }
+
+    .post-item-excerpt {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .blog-container {
+        padding: 15px;
+    }
+
+    .post-item-content {
+        padding: 16px;
+    }
+
+    .post-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+}

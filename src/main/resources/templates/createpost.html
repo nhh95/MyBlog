@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+    <head>
+        <th:block layout:fragment="script">
+            <script th:inline="javascript">
+                const message = /*[[${msg}]]*/ "";
+                if (message) alert(message);
+            </script>
+        </th:block>
+
+    </head>
+
+    <section layout:fragment="content">
+        <body>
+            <h1>글쓰기</h1>
+            <hr>
+
+            <form th:action="@{/post/{categoryName}/createpost(categoryName=${postRequestDTO.categoryName})}"
+                  th:object="${postRequestDTO}" method="post">
+
+              <input type="hidden" th:field="*{categoryName}">
+
+                <!-- 비회원인 경우에만 닉네임과 비밀번호 필드 표시 -->
+                <div th:if="${isGuest}">
+                    <div>
+                        <input type="text" th:field="*{guestNickname}" placeholder="닉네임" required maxlength="15"/>
+                    </div>
+                    <div>
+                        <input type="password" th:field="*{guestSecret}" placeholder="비밀번호 (글 수정/삭제 시 필요)" required minlength="6"/>
+                    </div>
+                    <hr>
+                </div>
+
+
+              <div>
+                <input type="text" id="title" th:field="*{title}" minlength="2"  maxlength="100" name="title" placeholder="제목" required/>
+              </div>
+
+              <div>
+                  <!--summernote-->
+                  <textarea id="summernote" th:field="*{content}" name="content" required></textarea>
+              </div>
+
+
+                <button type="submit" onclick="return validatePostForm()">글 작성</button>
+
+            </form>
+
+            <script>
+
+            </script>
+        </body>
+        <script>
+
+        </script>
+    </section>
+</html>

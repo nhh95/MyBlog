@@ -1,0 +1,90 @@
+.hidden {
+    display: none;
+}
+
+.comment-item {
+    border: 1px solid #ddd;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.comment-header strong {
+    font-weight: bold;
+}
+
+.comment-date {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.comment-content {
+    width: 100%;
+    min-height: 80px;
+    margin-bottom: 5px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    resize: none;
+}
+
+.comment-edit-form {
+    margin-bottom: 8px;
+    text-align: right;
+
+
+}
+
+.comment-edit-form.hidden {
+    display: none;
+}
+
+.comment-edit-textarea {
+    width: 100%;
+    min-height: 80px;
+    margin-bottom: 5px;
+    resize: none;
+}
+
+
+
+.comment-actions {
+    text-align: right;
+}
+
+
+.comment-no-permission {
+    color: #999;
+    font-size: 0.8em;
+}
+
+.comment-action.hidden {
+    text-align: right;
+    display: none;
+}
+
+
+.comment-createForm{
+    border: 1px solid #ddd;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+
+}
+
+.comment-createTextArea{
+    width: 100%;
+    min-height: 80px;
+    margin-bottom: 5px;
+    resize: none;
+}
+
+.comment-createButton {
+    text-align: right;
+}
