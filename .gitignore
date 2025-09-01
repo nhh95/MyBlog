@@ -234,3 +234,5 @@ build/
 .env
 .env.*
 .env.local
+
+!gradle/wrapper/gradle-wrapper.jar
