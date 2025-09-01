@@ -2,6 +2,7 @@
 .gitignore
 .gradle
 build
+!build/libs/*.jar
 **/*.iml
 **/.idea
 **/.vscode
