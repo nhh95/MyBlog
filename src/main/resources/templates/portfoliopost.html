@@ -18,6 +18,8 @@
     </th:block>
     <th:block layout:fragment="script">
         <script defer th:src="@{/js/comment.js}"></script>
+        <script defer th:src="@{/js/toc.js}"></script>
+
     </th:block>
 </head>
 
@@ -41,6 +43,7 @@
               </span>
             </div>
             <hr/>
+
             <div class="content" id="post-content"  th:utext="${POST.content}">
                 내용이 여기에 들어갑니다.
             </div>
