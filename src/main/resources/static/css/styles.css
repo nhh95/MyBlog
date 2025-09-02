@@ -677,3 +677,87 @@ a:hover {
     align-items: center;
     gap: var(--space-2);
 }
+
+.toc-container {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    max-width: 100%;
+}
+
+.toc-title {
+    margin: 0 0 15px 0;
+    color: #495057;
+    font-size: 1.2em;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 8px;
+}
+
+.toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.toc-list .toc-list {
+    padding-left: 20px;
+    margin-top: 5px;
+}
+
+.toc-list li {
+    margin: 5px 0;
+}
+
+.toc-list a {
+    text-decoration: none;
+    color: #495057;
+    padding: 5px 8px;
+    display: block;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.toc-list a:hover {
+    background-color: #e9ecef;
+    color: #007bff;
+}
+
+/* 제목 레벨별 스타일 */
+.toc-level-h1 {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+.toc-level-h2 {
+    font-weight: 600;
+}
+.toc-level-h3 {
+    font-weight: 500;
+}
+.toc-level-h4 {
+    font-weight: 400;
+    font-size: 0.95em;
+}
+.toc-level-h5 {
+    font-weight: 400;
+    font-size: 0.9em;
+}
+.toc-level-h6 {
+    font-weight: 400;
+    font-size: 0.85em;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .toc-container {
+        margin: 15px 0;
+        padding: 15px;
+    }
+
+    .toc-list .toc-list {
+        padding-left: 15px;
+    }
+}
+
+
