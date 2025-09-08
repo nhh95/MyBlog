@@ -61,6 +61,52 @@ $('#summernote').summernote({
                         // blockquote 태그가 생성될 때마다 인라인 스타일 추가
                         var $blockquotes = $editable.find('blockquote:not([style])');
                         $blockquotes.attr('style', 'padding: 15px 20px; margin: 0 0 20px; border-left: 5px solid #000000; background-color: #f9f9f9; color: #666; font-style: italic;');
+
+                        // 모든 table 태그에 보더 스타일 추가 (기존 스타일 보존)
+                        var $tables = $editable.find('table');
+                        $tables.each(function() {
+                            var $table = $(this);
+                            var existingStyle = $table.attr('style') || '';
+
+                            // border-collapse가 없으면 추가
+                            if (existingStyle.indexOf('border-collapse') === -1) {
+                                existingStyle += '; border-collapse: collapse';
+                            }
+                            // width가 없으면 추가
+                            if (existingStyle.indexOf('width') === -1) {
+                                existingStyle += '; width: 100%';
+                            }
+                            // margin이 없으면 추가
+                            if (existingStyle.indexOf('margin') === -1) {
+                                existingStyle += '; margin: 10px 0';
+                            }
+
+                            $table.attr('style', existingStyle.replace(/^;\s*/, ''));
+                        });
+
+                        // 모든 td, th 태그에 보더 스타일 추가 (기존 스타일 보존)
+                        var $tableCells = $editable.find('table td, table th');
+                        $tableCells.each(function() {
+                            var $cell = $(this);
+                            var existingStyle = $cell.attr('style') || '';
+
+                            // border가 없으면 추가
+                            if (existingStyle.indexOf('border') === -1) {
+                                existingStyle += '; border: 1px solid #ddd';
+                            }
+                            // padding이 없으면 추가
+                            if (existingStyle.indexOf('padding') === -1) {
+                                existingStyle += '; padding: 8px';
+                            }
+                            // text-align이 없으면 추가
+                            if (existingStyle.indexOf('text-align') === -1) {
+                                existingStyle += '; text-align: left';
+                            }
+
+                            $cell.attr('style', existingStyle.replace(/^;\s*/, ''));
+                        });
+
+
                     }
 
 
