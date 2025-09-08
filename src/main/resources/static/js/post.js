@@ -15,7 +15,7 @@ $(function(){
 
 $('#summernote').summernote({
 			  toolbar: [
-    			    // [groupName, [list of button]]
+                    ['style', ['style']],
     			    ['fontname', ['fontname']],
     			    ['fontsize', ['fontsize']],
     			    ['style', ['bold', 'italic', 'underline','strikethrough', 'clear']],
@@ -26,9 +26,10 @@ $('#summernote').summernote({
     			    ['insert',['picture','link','video']],
     			    ['view', ['fullscreen', 'help']]
     			  ],
+                styleTags: ['p','blockquote','h1', 'h2', 'h3','h4','h5','h6'],
     			fontNames: ['sans-serif','Arial', 'Arial Black', 'Comic Sans MS', 'Courier New','맑은 고딕','궁서','굴림체','굴림','돋움체','바탕체'],
     			fontSizes: ['8','9','10','11','12','14','16','18','20','22','24','28','30','36','50','72'],
-				height: 800,                 // 에디터 높이
+				height: 800,
 				disableResizeEditor: true,
 				minHeight: null,             // 최소 높이
 				maxHeight: null,             // 최대 높이
@@ -55,9 +56,15 @@ $('#summernote').summernote({
 
                             deleteSummernoteImageFile(imageUrl);
                         }
+                    },
+                    onChange: function(contents, $editable) {
+                        // blockquote 태그가 생성될 때마다 인라인 스타일 추가
+                        var $blockquotes = $editable.find('blockquote:not([style])');
+                        $blockquotes.attr('style', 'padding: 15px 20px; margin: 0 0 20px; border-left: 5px solid #000000; background-color: #f9f9f9; color: #666; font-style: italic;');
                     }
 
-				}
+
+                }
 	});
 
 
