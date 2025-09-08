@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+            const message = /*[[${msg}]]*/ "";
+            if (message) alert(message);
+        </script>
+    </th:block>
+    <style>
+
+    </style>
+</head>
+<section layout:fragment="content">
+    <body>
+
+    <h1>에러가 발생했습니다</h1>
+    <hr/>
+
+
+
+    </body>
+</section>
+</html>
