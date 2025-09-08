@@ -32,9 +32,6 @@ public class MinioService {
     public String minioUploadFile(File file) {
         try (InputStream inputStream = new FileInputStream(file)) {
 
-
-
-
             // 파일명 중복 방지를 위해 UUID와 원본 파일명 조합
             String minioFileName = UUID.randomUUID().toString() + "_" + file.getName();
             String minioObjectPath = "summernoteImage/" + minioFileName;
@@ -48,14 +45,10 @@ public class MinioService {
                             .build()
             );
 
-
-
-
-
             return minioUrl + "/" + bucketName + "/summernoteImage/" + minioFileName;
 
         } catch (Exception e) {
-            throw new RuntimeException("miniO 파일 업로드 실패", e);
+            throw new RuntimeException("MinIO UploadFile failed", e);
         }
     }
 
@@ -71,7 +64,7 @@ public class MinioService {
                             .build()
             );
         } catch (Exception e) {
-            throw new RuntimeException("miniO 파일 삭제 실패", e);
+            throw new RuntimeException("miniO DeleteFile failed", e);
         }
     }
 

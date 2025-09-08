@@ -4,18 +4,9 @@
       layout:decorate="~{layout/layout}">
   <head>
       <th:block layout:fragment="script">
-          <script th:inline="javascript">
-              // msg가 존재할 때만 처리하도록 안전하게 변경
-              /*<![CDATA[*/
-              try {
-                  const message = /*[[${msg}]]*/ null;
-                  if (message && message.trim() !== '') {
-                      alert(message);
-                  }
-              } catch (e) {
-                  console.log('Message processing error:', e);
-              }
-              /*]]>*/
+          <script defer th:inline="javascript">
+              const message = /*[[${msg}]]*/ "";
+              if (message) alert(message);
           </script>
       </th:block>
       <th:block layout:fragment="script">

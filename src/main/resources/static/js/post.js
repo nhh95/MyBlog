@@ -26,7 +26,7 @@ $('#summernote').summernote({
     			    ['insert',['picture','link','video']],
     			    ['view', ['fullscreen', 'help']]
     			  ],
-    			fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New','맑은 고딕','궁서','굴림체','굴림','돋움체','바탕체'],
+    			fontNames: ['sans-serif','Arial', 'Arial Black', 'Comic Sans MS', 'Courier New','맑은 고딕','궁서','굴림체','굴림','돋움체','바탕체'],
     			fontSizes: ['8','9','10','11','12','14','16','18','20','22','24','28','30','36','50','72'],
 				height: 800,                 // 에디터 높이
 				disableResizeEditor: true,
@@ -36,7 +36,7 @@ $('#summernote').summernote({
 				lang: "ko-KR",					// 한글 설정
 				/*placeholder: '',	//placeholder 설정*/
 				callbacks: {	//여기 부분이 이미지를 첨부하는 부분
-					onImageUpload : function(files) {
+					onImageUpload : function(files,editor,welEditable) {
 						uploadSummernoteImageFile(files[0],this);
 					},
 					onPaste: function (e) {
@@ -49,10 +49,10 @@ $('#summernote').summernote({
 						}
 					},
                     onMediaDelete: function(target) {
-                        // 이미지가 삭제되면 이 함수가 호출됩니다.
+
                         var imageUrl = $(target[0]).attr('src');
                         if (imageUrl) {
-                            // 서버에 삭제 요청을 보냅니다.
+
                             deleteSummernoteImageFile(imageUrl);
                         }
                     }
@@ -61,10 +61,16 @@ $('#summernote').summernote({
 	});
 
 
+$("div.note-editable").on('drop',function(e){
+    for(i=0; i< e.originalEvent.dataTransfer.files.length; i++){
+        uploadSummernoteImageFile(e.originalEvent.dataTransfer.files[i],$("#summernote")[0]);
+    }
+    e.preventDefault();
+})
 
 
 
-	function uploadSummernoteImageFile(file, editor) {
+function uploadSummernoteImageFile(file, editor) {
 		data = new FormData();
 		data.append("file", file);
 		$.ajax({
