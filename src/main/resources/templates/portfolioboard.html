@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.w3.org/1999/xhtml"
       layout:decorate="~{layout/layout}">
 <head>
     <th:block layout:fragment="script">
@@ -52,7 +52,7 @@
         </tbody>
     </table>
     <hr/>
-    <div class="create-post-button">
+    <div class="create-post-button" sec:authorize="hasRole('ADMIN')">
         <button type="button" th:onclick="|location.href='@{/post/{categoryName}/createpost(categoryName=${categoryName})}'|">
             글쓰기
         </button>

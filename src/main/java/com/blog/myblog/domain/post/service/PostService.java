@@ -252,6 +252,18 @@ public class PostService {
     }
 
 
+    @Transactional
+    public void forceDeleteGuestPost(Long id) {
+        PostEntity postEntity = postRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("해당 게시글이 존재하지 않습니다. id=" + id));
+
+
+        deletePostImages( postEntity.getContent());
+        postRepository.delete( postEntity);
+    }
+
+
+
 
     @Transactional(readOnly = true)
     public Boolean isAccess(Long id) {
@@ -412,7 +424,40 @@ public class PostService {
             }
         }
     }
+
+    // 수정 전용 권한 체크 메서드 추가
+    @Transactional(readOnly = true)
+    public Boolean isUpdateAccess(Long id) {
+        //현재 로그인 되어있는 유저의 Email
+        String sessionEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        PostEntity postEntity = postRepository.findById(id).orElseThrow();
+
+        // 비회원 게시글인 경우 - 비밀번호 확인이 필요하므로 별도 처리
+        if (postEntity.getGuestUser() != null) {
+            return false; // 컨트롤러에서 별도 비밀번호 확인 로직 필요
+        }
+
+        //게시글 id에 대해 본인이 작성했는지 확인 (회원만) - ADMIN도 본인 글만 수정 가능
+        if (postEntity.getUser() != null) {
+            String postUserEmail = postEntity.getUser().getEmail();
+            return sessionEmail.equals(postUserEmail);
+        }
+
+        //나머지는 불가
+        return false;
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean isGuestPost(Long id) {
+        PostEntity postEntity = postRepository.findById(id).orElseThrow();
+        return postEntity.getGuestUser() != null; // guest_user_id가 존재하면 비회원 글
+    }
+
+
 }
+
+
 
 
 
