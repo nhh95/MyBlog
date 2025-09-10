@@ -151,18 +151,12 @@ public class PostController {
 
         PostResponseDTO post = postService.readOnePost(id);
 
-        // 비회원 게시글인지 확인
-        boolean isGuestPost = post.getUserNickname() != null && post.getUserNickname().contains("(비회원)");
+        boolean isGuestPost = postService.isGuestPost(id);
 
-        if (isGuestPost) {
-            // 비회원 게시글인 경우 비밀번호 입력 페이지로
-            model.addAttribute("POST", post);
-            model.addAttribute("categoryName", categoryName);
-            model.addAttribute("postId", id);
-            return "guestpasswordverify";
-        } else {
-            // 회원 게시글인 경우 기존 로직
-            if(!postService.isAccess(id)){
+
+        if (!isGuestPost) {
+            // 회원 글: 수정 권한(작성자 본인만) 체크
+            if(!postService.isUpdateAccess(id)){
                 redirectAttributes.addFlashAttribute("msg","글 수정 권한이 없습니다");
                 return "redirect:/post/" + categoryName;
             }
@@ -170,7 +164,17 @@ public class PostController {
             model.addAttribute("POST", post);
             model.addAttribute("categoryName", categoryName);
             return "updatepost";
+        } else {
+            // 비회원 글: 비밀번호 입력 페이지로 이동
+            model.addAttribute("POST", post);
+            model.addAttribute("categoryName", categoryName);
+            model.addAttribute("postId", id);
+            model.addAttribute("isGuestPost", true);
+
+            return "guestpasswordverify";
         }
+
+
     }
 
 
@@ -186,6 +190,9 @@ public class PostController {
             PostResponseDTO post = postService.readOnePost(id);
             model.addAttribute("POST", post);
             model.addAttribute("categoryName", categoryName);
+
+            model.addAttribute("isGuestPost", true);
+
 
             return "updatepost";
         } else {
@@ -208,11 +215,14 @@ public class PostController {
 
         // 비회원 게시글인지 확인
         PostResponseDTO post = postService.readOnePost(id);
-        boolean isGuestPost = post.getUserNickname() != null && post.getUserNickname().contains("(비회원)");
+        boolean isGuestPost = postService.isGuestPost(id);
+
+
+
 
         if (!isGuestPost) {
             // 회원 게시글인 경우 기존 권한 확인
-            if(!postService.isAccess(id)){
+            if(!postService.isUpdateAccess(id)){
                 redirectAttributes.addFlashAttribute("msg","글 수정 권한이 없습니다");
                 return "redirect:/post/" + categoryName + "/" + id;
             }
@@ -235,14 +245,26 @@ public class PostController {
     public String deleteProcess(@PathVariable("categoryName")String categoryName,@PathVariable("id") Long id,RedirectAttributes redirectAttributes){
 
         PostResponseDTO post = postService.readOnePost(id);
-        boolean isGuestPost = post.getUserNickname() != null && post.getUserNickname().contains("(비회원)");
 
-        if (isGuestPost) {
-            // 비회원 게시글인 경우 비밀번호 확인 페이지로 리다이렉트
-            redirectAttributes.addFlashAttribute("deletePostId", id);
-            redirectAttributes.addFlashAttribute("categoryName", categoryName);
-            return "redirect:/post/" + categoryName + "/" + id + "/delete-verify";
-        } else {
+        boolean isGuestPost = postService.isGuestPost(id);
+
+
+
+        String sessionRole = SecurityContextHolder.getContext().getAuthentication().getAuthorities().iterator().next().getAuthority();
+
+
+        if ("ROLE_ADMIN".equals(sessionRole)) {
+            if (isGuestPost) {
+                postService.forceDeleteGuestPost(id);
+            } else {
+                postService.deleteOnePost(id);
+            }
+            redirectAttributes.addFlashAttribute("msg", "게시글이 삭제되었습니다.");
+            return "redirect:/post/" + categoryName;
+        }
+
+
+        if (!isGuestPost) {
             // 회원 게시글인 경우 기존 로직
             if(!postService.isAccess(id)){
                 redirectAttributes.addFlashAttribute("msg","글 삭제 권한이 없습니다");
@@ -251,7 +273,13 @@ public class PostController {
 
             postService.deleteOnePost(id);
             return "redirect:/post/" + categoryName;
+        } else {
+            // 비회원 게시글인 경우 비밀번호 확인 페이지로 리다이렉트
+            redirectAttributes.addFlashAttribute("deletePostId", id);
+            redirectAttributes.addFlashAttribute("categoryName", categoryName);
+            return "redirect:/post/" + categoryName + "/" + id + "/delete-verify";
         }
+
     }
 
     // 비회원 게시글 삭제 비밀번호 확인 페이지

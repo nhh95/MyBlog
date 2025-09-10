@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.w3.org/1999/xhtml"
       layout:decorate="~{layout/layout}">
 
 <head>
@@ -50,13 +50,8 @@
             <hr/>
         </article>
         <div class="post-actions">
-            <div class="post-actions-left-buttons">
-                <button type="button" th:onclick="|location.href='@{/post/{categoryName}(categoryName=${POST.categoryName})}'|">
 
-                    목록으로 돌아가기
-                </button>
-            </div>
-            <div class="post-action-right-buttons">
+            <div class="post-action-right-buttons" sec:authorize="hasRole('ADMIN')">
                 <button type="button" th:onclick="|location.href='@{/post/{categoryName}/updatepost/{id}(categoryName=${POST.categoryName}, id=${POST.id})}'|">
                     수정
                 </button>
