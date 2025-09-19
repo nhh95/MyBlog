@@ -110,15 +110,13 @@ public class PostService {
     @Transactional
     public PostResponseDTO readOnePost(Long id) {
 
+        PostEntity postEntity = postRepository.findById(id).orElseThrow();
         //  세션에 기록이 없으면 조회수 증가
         if (!viewedPostsHolder.contains(id)) {
-            PostEntity entityForCount = postRepository.findById(id).orElseThrow();
-            entityForCount.setViewCount(entityForCount.getViewCount() + 1);
-
+            postEntity.setViewCount(postEntity.getViewCount() + 1);
             viewedPostsHolder.add(id);
         }
 
-        PostEntity postEntity = postRepository.findById(id).orElseThrow();
 
         PostResponseDTO dto = new PostResponseDTO();
 
