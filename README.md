@@ -233,7 +233,10 @@
 
     <img width="2082" height="1319" alt="Image" src="https://github.com/user-attachments/assets/f4f2311d-0ae3-4c86-8dd5-96fa2678ff00" />
 
-
+- 프로젝트 게시판
+  
+  <img width="2295" height="1937" alt="Image" src="https://github.com/user-attachments/assets/8c41d03b-9baa-4f59-97fc-8abb0201f5f9" />
+  
 - 로그인 화면
 
     <img width="1240" height="1270" alt="Image" src="https://github.com/user-attachments/assets/ffa5dcd8-2d4a-407f-822b-0b4a503867f9" />
@@ -308,6 +311,5 @@
     <img width="2082" height="1319" alt="Image" src="https://github.com/user-attachments/assets/28975b86-9f5b-4ce4-b8b3-bbfc3a7f7a96" />
 
 
-- 프로젝트 게시판
-  <img width="2295" height="1937" alt="Image" src="https://github.com/user-attachments/assets/8c41d03b-9baa-4f59-97fc-8abb0201f5f9" />
+
 ---
