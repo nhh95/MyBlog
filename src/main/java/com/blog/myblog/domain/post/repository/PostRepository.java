@@ -5,6 +5,7 @@ import com.blog.myblog.domain.post.entity.PostEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -33,5 +34,8 @@ public interface PostRepository extends JpaRepository<PostEntity,Long> {
             "ORDER BY p.id DESC")
     Page<PostEntity> findByCategoryNameOrderByIdDesc(@Param("categoryName") String categoryName, Pageable pageable);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE PostEntity p SET p.viewCount = p.viewCount + 1 WHERE p.id = :id")
+    void incrementViewCount(@Param("id") Long id);
 
 }
